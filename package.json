@@ -3,6 +3,10 @@
     "version": "1.0.0",
     "description": "",
     "author": "Kenneth Larsen, Paul Götze",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/kennthlarsen/thecatgame.git"
+    },
     "main": "index.js",
     "scripts": {
         "dev": "webpack",
@@ -12,6 +16,7 @@
     },
     "license": "MIT",
     "devDependencies": {
+        "ajv": "^5.3.0",
         "babel-core": "^6.25.0",
         "babel-eslint": "^7.2.3",
         "babel-loader": "^7.1.1",
@@ -23,10 +28,13 @@
         "copy-webpack-plugin": "^4.2.0",
         "cordova": "^7.1.0",
         "eslint": "^4.3.0",
+        "eslint-config-airbnb": "^16.1.0",
         "eslint-config-standard": "^10.2.1",
         "eslint-plugin-import": "^2.7.0",
+        "eslint-plugin-jsx-a11y": "^6.0.2",
         "eslint-plugin-node": "^5.1.1",
         "eslint-plugin-promise": "^3.5.0",
+        "eslint-plugin-react": "^7.4.0",
         "eslint-plugin-standard": "^3.0.1",
         "expose-loader": "^0.7.3",
         "html-webpack-plugin": "^2.30.1",
