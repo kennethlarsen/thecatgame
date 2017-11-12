@@ -20,9 +20,9 @@ export default class extends Phaser.State {
     const text = this.add.text(
       this.world.centerX,
       this.world.centerY,
-      'loading fonts', {
+      'loading fonts…', {
         font: '16px Arial',
-        fill: '#dddddd',
+        fill: config.fontColor,
         align: 'center',
       },
     );
