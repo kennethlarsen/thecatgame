@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import WebFont from 'webfontloader';
+import config from '../config';
 
 export default class extends Phaser.State {
   init() {
-    this.stage.backgroundColor = '#333333';
+    this.stage.backgroundColor = config.backgroundColor;
     this.fontsReady = false;
     this.fontsLoaded = this.fontsLoaded.bind(this);
   }
@@ -11,7 +12,7 @@ export default class extends Phaser.State {
   preload() {
     WebFont.load({
       google: {
-        families: ['Pacifico'],
+        families: [config.font],
       },
       active: this.fontsLoaded,
     });
@@ -34,7 +35,7 @@ export default class extends Phaser.State {
 
   render() {
     if (this.fontsReady) {
-      this.state.start('Splash');
+      this.state.start('Preload');
     }
   }
 
