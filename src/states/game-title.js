@@ -1,13 +1,20 @@
 import Phaser from 'phaser';
 import config from '../config';
+import CatWalking from '../sprites/cat-walking';
 
 const textHoverColor = '#555555';
 
 export default class extends Phaser.State {
   create() {
+    this.addTitle();
+    this.addCat();
+    this.addStartButton();
+  }
+
+  addTitle() {
     this.add.text(
       this.game.world.centerX,
-      100,
+      this.game.world.centerY - (this.game.world.centerY * 0.8),
       'The Cat Game',
       {
         font: `50px ${config.font}`,
@@ -15,7 +22,21 @@ export default class extends Phaser.State {
         align: 'center',
       },
     ).anchor.set(0.5);
+  }
 
+  addCat() {
+    const cat = new CatWalking({
+      game: this.game,
+      x: this.world.centerX,
+      y: this.world.centerY + (this.world.centerY * 0.4),
+      asset: 'catWalking',
+    });
+
+    this.game.add.existing(cat);
+    cat.walk();
+  }
+
+  addStartButton() {
     const startButton = this.add.text(
       this.game.world.centerX,
       this.game.world.centerY,
