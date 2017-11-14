@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import config from '../config';
 import CatWalking from '../sprites/cat-walking';
+import Weather from '../objects/weather';
 
 export default class extends Phaser.State {
   init() {
@@ -19,12 +20,20 @@ export default class extends Phaser.State {
       asset: 'catWalking',
     });
 
+    this.weather = new Weather(this.game);
+
     this.game.add.existing(this.cat);
     this.game.input.onUp.add(this.storeEnergy, this);
     jumpKey.onDown.add(this.jump, this);
     this.game.physics.enable(this.cat, Phaser.Physics.ARCADE);
     this.cat.body.gravity.y = 500;
     this.cat.body.collideWorldBounds = true;
+    
+    // Uncomment to add weather effects
+    // this.weather.addSmog();
+    // this.weather.removeSmog();
+    this.weather.addRain();
+
   }
 
   storeEnergy() {
@@ -52,6 +61,7 @@ export default class extends Phaser.State {
 
     this.cat.body.velocity.y = -300;
   }
+
 
   update() {
     this.startY = this.cat.y;
