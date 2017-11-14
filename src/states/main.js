@@ -10,6 +10,7 @@ export default class extends Phaser.State {
 
   create() {
     this.cursors = this.input.keyboard.createCursorKeys();
+    const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     this.cat = new CatWalking({
       game: this.game,
@@ -20,6 +21,10 @@ export default class extends Phaser.State {
 
     this.game.add.existing(this.cat);
     this.game.input.onUp.add(this.storeEnergy, this);
+    jumpKey.onDown.add(this.jump, this);
+    this.game.physics.enable(this.cat, Phaser.Physics.ARCADE);
+    this.cat.body.gravity.y = 500;
+    this.cat.body.collideWorldBounds = true;
   }
 
   storeEnergy() {
@@ -40,7 +45,17 @@ export default class extends Phaser.State {
     return `Cat energy: ${Math.floor(this.energy / 10)}`;
   }
 
+  jump() {
+    if (this.cat.y !== this.startY) {
+      return;
+    }
+
+    this.cat.body.velocity.y = -300;
+  }
+
   update() {
+    this.startY = this.cat.y;
+
     if (this.energy > 0) {
       const weighedEnergy = Math.sqrt(this.energy);
       const fps = Math.floor(weighedEnergy);
