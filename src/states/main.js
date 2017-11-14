@@ -5,6 +5,7 @@ import Ground from '../objects/ground';
 import Background from '../objects/background';
 import Batteries from '../objects/batteries';
 import TimeMachine from '../objects/time-machine';
+import Weather from '../objects/weather';
 
 export default class extends Phaser.State {
   create() {
@@ -35,6 +36,13 @@ export default class extends Phaser.State {
     this.addEnergyCounter();
     this.addTravelLevel();
     this.addTime();
+
+    this.weather = new Weather(this.game);
+
+    // Uncomment to add weather effects
+    // this.weather.addSmog();
+    // this.weather.removeSmog();
+    this.weather.addRain();
 
     const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -85,6 +93,7 @@ export default class extends Phaser.State {
       align: 'right',
     });
   }
+
 
   update() {
     this.cat.update();
