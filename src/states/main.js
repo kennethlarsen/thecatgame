@@ -46,10 +46,16 @@ export default class extends Phaser.State {
   }
 
   jump() {
+    if (this.cat.y !== this.startY) {
+      return;
+    }
+
     this.cat.body.velocity.y = -300;
   }
 
   update() {
+    this.startY = this.cat.y;
+
     if (this.energy > 0) {
       const weighedEnergy = Math.sqrt(this.energy);
       const fps = Math.floor(weighedEnergy);
