@@ -1,36 +1,23 @@
 import Phaser from 'phaser';
 import config from '../config';
-import CatWalking from '../sprites/cat-walking';
+import Cat from '../objects/cat';
 
 export default class extends Phaser.State {
-  init() {
-    this.energy = 0;
-    this.addEnergyCounter();
-  }
-
   create() {
-    this.cursors = this.input.keyboard.createCursorKeys();
-    const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    this.game.physics.startSystem(Phaser.Physics.ARCADE);
+    this.game.physics.arcade.gravity.y = 9810;
 
-    this.cat = new CatWalking({
+    this.cat = new Cat({
       game: this.game,
       x: this.world.centerX,
       y: this.world.centerY + (this.world.centerY * 0.4),
-      asset: 'catWalking',
     });
 
-    this.game.add.existing(this.cat);
-    this.game.input.onUp.add(this.storeEnergy, this);
-    jumpKey.onDown.add(this.jump, this);
-    this.game.physics.enable(this.cat, Phaser.Physics.ARCADE);
-    this.cat.body.gravity.y = 500;
-    this.cat.body.collideWorldBounds = true;
-  }
+    this.addEnergyCounter();
 
-  storeEnergy() {
-    if (this.energy < 1000) {
-      this.energy += 20;
-    }
+    const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    this.game.input.onUp.add(() => this.cat.speedUp());
+    jumpKey.onDown.add(() => this.cat.jump());
   }
 
   addEnergyCounter() {
@@ -42,31 +29,13 @@ export default class extends Phaser.State {
   }
 
   energyText() {
-    return `Cat energy: ${Math.floor(this.energy / 10)}`;
-  }
-
-  jump() {
-    if (this.cat.y !== this.startY) {
-      return;
-    }
-
-    this.cat.body.velocity.y = -300;
+    return `Cat energy: ${this.cat.speed()}`;
   }
 
   update() {
-    this.startY = this.cat.y;
-
-    if (this.energy > 0) {
-      const weighedEnergy = Math.sqrt(this.energy);
-      const fps = Math.floor(weighedEnergy);
-      this.cat.walk(fps);
-
-      // remove more energy for a higher energy level:
-      this.energy -= Math.floor(weighedEnergy / 7) || 1;
-      this.counter.text = this.energyText();
-    } else {
-      this.cat.halt();
-    }
+    this.startY = this.cat.sprite.y;
+    this.cat.update();
+    this.counter.text = this.energyText();
   }
 
   resize() {
