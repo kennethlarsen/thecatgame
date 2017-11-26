@@ -34,7 +34,7 @@ export default class extends Phaser.State {
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
 
-    this.game.input.onUp.add(() => this.cat.speedUp());
+    this.game.input.onDown.add(() => this.cat.speedUp());
     jumpKey.onDown.add(() => this.cat.jump());
     loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
     travelKey.onUp.add(() => this.timeMachine.travelToFuture(this.batteries));
