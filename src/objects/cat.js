@@ -12,7 +12,7 @@ class Cat {
       game,
       x,
       y,
-      asset: 'catWalking',
+      asset: 'cat-walking',
     });
 
     game.add.existing(this.sprite);
