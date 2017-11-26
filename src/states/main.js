@@ -1,11 +1,18 @@
 import Phaser from 'phaser';
 import config from '../config';
 import Cat from '../objects/cat';
+import Ground from '../objects/ground';
 
 export default class extends Phaser.State {
   create() {
+    this.game.time.advancedTiming = true;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
     this.game.physics.arcade.gravity.y = 9810;
+
+    this.ground = new Ground({
+      game: this.game,
+      asset: 'ground-snow',
+    });
 
     this.cat = new Cat({
       game: this.game,
@@ -33,9 +40,11 @@ export default class extends Phaser.State {
   }
 
   update() {
-    this.startY = this.cat.sprite.y;
     this.cat.update();
+    this.ground.update(this.cat.speed());
+
     this.counter.text = this.energyText();
+    this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
   }
 
   resize() {
