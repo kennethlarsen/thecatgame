@@ -21,6 +21,7 @@ class Cat {
 
     this.sprite.body.offset.y = -50;
     this.sprite.body.collideWorldBounds = true;
+    this.sprite.body.gravity.y = 9810;
   }
 
   hasEnergy() {

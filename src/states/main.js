@@ -12,7 +12,6 @@ export default class extends Phaser.State {
     this.moved = false;
     this.game.time.advancedTiming = true;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-    this.game.physics.arcade.gravity.y = 9810;
 
     this.batteries = new Batteries();
     this.timeMachine = new TimeMachine();
@@ -27,22 +26,24 @@ export default class extends Phaser.State {
       asset: 'ground-snow',
     });
 
+    this.weather = new Weather(this.game);
+
+    // Uncomment to add weather effects
+    // this.weather.addSmog();
+    // this.weather.removeSmog();
+    // this.weather.addRain();
+
     this.cat = new Cat({
       game: this.game,
       x: this.world.centerX,
       y: this.world.centerY + (this.world.centerY * 0.4),
     });
 
+    this.weather.addSnow();
+
     this.addEnergyCounter();
     this.addTravelLevel();
     this.addTime();
-
-    this.weather = new Weather(this.game);
-
-    // Uncomment to add weather effects
-    // this.weather.addSmog();
-    // this.weather.removeSmog();
-    this.weather.addRain();
 
     const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -99,6 +100,7 @@ export default class extends Phaser.State {
     this.cat.update();
     this.ground.update(this.cat.speed());
     this.background.update(this.cat.speed());
+    this.weather.updateSnow(this.cat.speed());
 
     this.counter.text = this.energyText();
     this.travelLevel.text = this.travelLevelText();
