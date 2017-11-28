@@ -6,6 +6,7 @@ class Cat {
     this.game = game;
     this.energy = 0;
     this.energyUnit = 20;
+    this.chargeUnit = 20;
     this.maxEnergy = 1000;
 
     this.sprite = new CatWalking({
@@ -57,6 +58,32 @@ class Cat {
     } else {
       this.sprite.halt();
     }
+  }
+
+  chargeBatteries(batteries) {
+    if (batteries.isCharged) {
+      return;
+    }
+
+    // always remove n units from the displayed energy:
+    const difference = this.energyDifference(this.chargeUnit);
+    const chargeLevelReached = difference >= this.chargeUnit ** 2;
+    const enoughTotalEnergy = this.energy - difference > 0;
+
+    if (!chargeLevelReached || !enoughTotalEnergy) {
+      return;
+    }
+
+    const wasCharged = batteries.charge();
+
+    if (wasCharged) {
+      this.energy -= difference;
+    }
+  }
+
+  energyDifference(units) {
+    const finalEnergy = (Math.sqrt(this.energy) - units) ** 2;
+    return Math.floor(this.energy - finalEnergy);
   }
 }
 
