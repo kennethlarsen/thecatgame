@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import config from '../config';
 import Cat from '../objects/cat';
 import Ground from '../objects/ground';
+import Background from '../objects/background';
 import Batteries from '../objects/batteries';
 import TimeMachine from '../objects/time-machine';
 
@@ -14,6 +15,11 @@ export default class extends Phaser.State {
 
     this.batteries = new Batteries();
     this.timeMachine = new TimeMachine();
+
+    this.background = new Background({
+      game: this.game,
+      assets: ['background-1', 'background-2', 'background-3'],
+    });
 
     this.ground = new Ground({
       game: this.game,
@@ -83,6 +89,7 @@ export default class extends Phaser.State {
   update() {
     this.cat.update();
     this.ground.update(this.cat.speed());
+    this.background.update(this.cat.speed());
 
     this.counter.text = this.energyText();
     this.travelLevel.text = this.travelLevelText();
