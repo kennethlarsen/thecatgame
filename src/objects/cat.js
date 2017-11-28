@@ -12,12 +12,13 @@ class Cat {
       game,
       x,
       y,
-      asset: 'catWalking',
+      asset: 'cat-walking',
     });
 
     game.add.existing(this.sprite);
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
 
+    this.sprite.body.offset.y = -50;
     this.sprite.body.collideWorldBounds = true;
   }
 
@@ -43,7 +44,7 @@ class Cat {
   }
 
   jump() {
-    if (this.sprite.body.onFloor()) {
+    if (this.sprite.body.touching.down) {
       this.sprite.body.velocity.y = -2500;
     }
   }

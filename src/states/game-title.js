@@ -29,7 +29,7 @@ export default class extends Phaser.State {
       game: this.game,
       x: this.world.centerX,
       y: this.world.centerY + (this.world.centerY * 0.4),
-      asset: 'catWalking',
+      asset: 'cat-walking',
     });
 
     this.game.add.existing(cat);
