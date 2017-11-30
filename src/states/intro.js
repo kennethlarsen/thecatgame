@@ -4,10 +4,18 @@ import config from '../config';
 export default class extends Phaser.State {
   create() {
     this.content = [
-      'Earth is getting colder because all the greenhouse gasses got avoided by all governments.',
-      'Now there is only one cyber-cat that is able to get',
-      '[some kind of fancy scientific device here] from the future to use it in the past to save the world!',
-      'Please help us save the planet. You are our only hope!',
+      `${(new Date()).getFullYear()}.`,
+      '',
+      'Earth is getting colder.',
+      'The world’s governments managaged to avoid all',
+      'greenhouse gasses, so climate change got inverted.',
+      'Now there is only one cyber-cat who is able to get',
+      '[some kind of fancy scientific device here] from the',
+      'future to use it in the past and save the world from',
+      'freezing.',
+      '',
+      'Please help us save the planet.',
+      'You are our only hope!',
     ];
 
     this.line = [];
