@@ -5,13 +5,13 @@ import Ground from '../objects/ground';
 import Background from '../objects/background';
 import Batteries from '../objects/batteries';
 import TimeMachine from '../objects/time-machine';
+import Weather from '../objects/weather';
 
 export default class extends Phaser.State {
   create() {
     this.moved = false;
     this.game.time.advancedTiming = true;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-    this.game.physics.arcade.gravity.y = 9810;
 
     this.batteries = new Batteries();
     this.timeMachine = new TimeMachine();
@@ -26,11 +26,20 @@ export default class extends Phaser.State {
       asset: 'ground-snow',
     });
 
+    this.weather = new Weather(this.game);
+
+    // Uncomment to add weather effects
+    // this.weather.addSmog();
+    // this.weather.removeSmog();
+    // this.weather.addRain();
+
     this.cat = new Cat({
       game: this.game,
       x: this.world.centerX,
       y: this.world.centerY + (this.world.centerY * 0.4),
     });
+
+    this.weather.addSnow();
 
     this.addEnergyCounter();
     this.addTravelLevel();
@@ -86,10 +95,12 @@ export default class extends Phaser.State {
     });
   }
 
+
   update() {
     this.cat.update();
     this.ground.update(this.cat.speed());
     this.background.update(this.cat.speed());
+    this.weather.updateSnow(this.cat.speed());
 
     this.counter.text = this.energyText();
     this.travelLevel.text = this.travelLevelText();
