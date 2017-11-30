@@ -1,8 +1,6 @@
 import Phaser from 'phaser';
 import config from '../config';
 
-const textHoverColor = '#555555';
-
 export default class extends Phaser.State {
   create() {
     this.content = [
@@ -78,7 +76,7 @@ export default class extends Phaser.State {
   }
 
   over(item) {
-    item.fill = textHoverColor;
+    item.fill = config.textHoverColor;
     this.game.canvas.style.cursor = 'pointer';
   }
 

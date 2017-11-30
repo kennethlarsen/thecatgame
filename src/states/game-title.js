@@ -2,8 +2,6 @@ import Phaser from 'phaser';
 import config from '../config';
 import CatWalking from '../sprites/cat-walking';
 
-const textHoverColor = '#555555';
-
 export default class extends Phaser.State {
   create() {
     this.addTitle();
@@ -56,7 +54,7 @@ export default class extends Phaser.State {
   }
 
   over(item) {
-    item.fill = textHoverColor;
+    item.fill = config.textHoverColor;
     this.game.canvas.style.cursor = 'pointer';
   }
 
