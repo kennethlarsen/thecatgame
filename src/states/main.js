@@ -61,7 +61,7 @@ export default class extends Phaser.State {
 
   addEnergyCounter() {
     this.counter = this.add.text(20, 20, this.energyText(), {
-      font: `50px ${config.font}`,
+      font: `50px ${config.fonts.primary}`,
       fill: config.fontColor,
       align: 'left',
     });
@@ -73,7 +73,7 @@ export default class extends Phaser.State {
 
   addTravelLevel() {
     this.travelLevel = this.add.text(20, 90, this.travelLevelText(), {
-      font: `25px ${config.font}`,
+      font: `25px ${config.fonts.primary}`,
       fill: config.fontColor,
       align: 'left',
     });
@@ -93,7 +93,7 @@ export default class extends Phaser.State {
     const text = this.timeMachine.currentYear;
 
     this.time = this.add.text(x, y, text, {
-      font: `75px ${config.font}`,
+      font: `75px ${config.fonts.secondary}`,
       fill: config.fontColor,
       align: 'right',
     });

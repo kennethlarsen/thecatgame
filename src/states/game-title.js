@@ -13,9 +13,9 @@ export default class extends Phaser.State {
     this.add.text(
       this.game.world.centerX,
       this.game.world.centerY - (this.game.world.centerY * 0.8),
-      'The Cat Game',
+      config.gameName,
       {
-        font: `50px ${config.font}`,
+        font: `50px ${config.fonts.secondary}`,
         fill: config.fontColor,
         align: 'center',
       },
@@ -40,7 +40,7 @@ export default class extends Phaser.State {
       this.game.world.centerY,
       'start',
       {
-        font: `45px ${config.font}`,
+        font: `45px ${config.fonts.secondary}`,
         fill: config.fontColor,
         align: 'center',
       },
@@ -64,6 +64,13 @@ export default class extends Phaser.State {
   }
 
   startGame() {
-    this.game.state.start('Intro');
+    const localStorageKey = `${config.localStorageName}-watchedIntro`;
+    const watchedIntro = window.localStorage.getItem(localStorageKey);
+
+    if (watchedIntro) {
+      this.game.state.start('Main');
+    } else {
+      this.game.state.start('Intro');
+    }
   }
 }

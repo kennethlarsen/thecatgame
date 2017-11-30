@@ -1,7 +1,11 @@
 export default {
-  localStorageName: 'thecatgame',
+  gameName: 'Purrturbation',
+  localStorageName: 'purrturbation',
   backgroundColor: '#ffffff',
   fontColor: '#444444',
-  font: 'Pacifico',
+  fonts: {
+    primary: 'Cousine',
+    secondary: 'Pacifico',
+  },
   textHoverColor: '#555555',
 };
