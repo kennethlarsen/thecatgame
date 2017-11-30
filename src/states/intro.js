@@ -94,6 +94,7 @@ export default class extends Phaser.State {
   }
 
   startGame() {
+    window.localStorage.setItem(`${config.localStorageName}-watchedIntro`, true);
     this.game.state.start('Main');
   }
 }

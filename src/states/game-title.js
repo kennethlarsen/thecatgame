@@ -64,6 +64,13 @@ export default class extends Phaser.State {
   }
 
   startGame() {
-    this.game.state.start('Intro');
+    const localStorageKey = `${config.localStorageName}-watchedIntro`;
+    const watchedIntro = window.localStorage.getItem(localStorageKey);
+
+    if (watchedIntro) {
+      this.game.state.start('Main');
+    } else {
+      this.game.state.start('Intro');
+    }
   }
 }
