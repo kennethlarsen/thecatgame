@@ -23,7 +23,7 @@ export default class extends Phaser.State {
       32,
       '',
       {
-        font: `30px ${config.font}`,
+        font: `30px ${config.fonts.primary}`,
         fill: config.fontColor,
       },
     );
@@ -62,7 +62,7 @@ export default class extends Phaser.State {
       this.game.world.centerY,
       'save the world',
       {
-        font: `45px ${config.font}`,
+        font: `45px ${config.fonts.secondary}`,
         fill: config.fontColor,
         align: 'center',
       },
