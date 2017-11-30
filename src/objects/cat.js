@@ -22,6 +22,7 @@ class Cat {
     this.sprite.body.offset.y = -50;
     this.sprite.body.collideWorldBounds = true;
     this.sprite.body.gravity.y = 9810;
+    this.meow = this.game.add.audio('meow');
   }
 
   hasEnergy() {
@@ -48,6 +49,7 @@ class Cat {
   jump() {
     if (this.sprite.body.touching.down) {
       this.sprite.body.velocity.y = -2500;
+      this.meow.play();
     }
   }
 

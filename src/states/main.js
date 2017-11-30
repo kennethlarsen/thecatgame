@@ -53,6 +53,10 @@ export default class extends Phaser.State {
     jumpKey.onDown.add(() => this.cat.jump());
     loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
     travelKey.onUp.add(() => this.timeMachine.travelToFuture(this.batteries));
+
+    const music = this.game.add.audio('furry-cat');
+
+    music.play();
   }
 
   addEnergyCounter() {
