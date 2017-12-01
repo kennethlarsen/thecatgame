@@ -23,10 +23,12 @@ class Ground {
 
     this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
     this.sprite.body.collideWorldBounds = true;
-    this.sprite.body.allowGravity = false;
+    this.sprite.body.immovable = true;
   }
 
   update(speed) {
+    this.game.physics.arcade.collide(this.sprite);
+
     // just a bit of delay, so that it looks nicer.
     if (speed < 6) {
       return;
