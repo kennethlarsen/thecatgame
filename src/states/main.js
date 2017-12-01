@@ -6,6 +6,7 @@ import Background from '../objects/background';
 import Batteries from '../objects/batteries';
 import TimeMachine from '../objects/time-machine';
 import Weather from '../objects/weather';
+import Obstacle from '../objects/obstacle';
 
 export default class extends Phaser.State {
   create() {
@@ -26,6 +27,10 @@ export default class extends Phaser.State {
       asset: 'ground-snow',
     });
 
+    this.obstacle = new Obstacle({
+      game: this.game,
+      frames: [0, 1],
+    });
     this.weather = new Weather(this.game);
 
     // Uncomment to add weather effects
@@ -35,9 +40,10 @@ export default class extends Phaser.State {
 
     this.cat = new Cat({
       game: this.game,
-      x: this.world.centerX,
+      x: this.world.centerX - 200,
       y: this.world.centerY + (this.world.centerY * 0.4),
     });
+
 
     this.weather.addSnow();
 
@@ -55,7 +61,6 @@ export default class extends Phaser.State {
     travelKey.onUp.add(() => this.timeMachine.travelToFuture(this.batteries));
 
     const music = this.game.add.audio('furry-cat');
-
     music.play();
   }
 
@@ -105,12 +110,14 @@ export default class extends Phaser.State {
     this.ground.update(this.cat.speed());
     this.background.update(this.cat.speed());
     this.weather.updateSnow(this.cat.speed());
+    this.obstacle.update(this.cat.speed());
 
     this.counter.text = this.energyText();
     this.travelLevel.text = this.travelLevelText();
     this.time.text = this.timeMachine.currentYear;
 
     this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
+    this.cat.collideWithAll(this.obstacle.sprites);
 
     if (!this.moved && this.cat.hasEnergy()) {
       this.moved = true;

@@ -7,7 +7,9 @@ class Cat {
     this.energy = 0;
     this.energyUnit = 20;
     this.chargeUnit = 20;
+    this.obstacleUnit = 5;
     this.maxEnergy = 1000;
+    this.jumpVelocity = 2500;
 
     this.sprite = new CatWalking({
       game,
@@ -21,7 +23,9 @@ class Cat {
 
     this.sprite.body.offset.y = -50;
     this.sprite.body.collideWorldBounds = true;
-    this.sprite.body.gravity.y = 9810;
+    this.sprite.body.gravity.y = 8000;
+    this.sprite.body.gravity.x = 0;
+    this.sprite.body.velocity.x = 0;
     this.meow = this.game.add.audio('meow');
   }
 
@@ -48,8 +52,7 @@ class Cat {
 
   jump() {
     if (this.sprite.body.touching.down) {
-      this.sprite.body.velocity.y = -2500;
-      this.meow.play();
+      this.sprite.body.velocity.y = -this.jumpVelocity;
     }
   }
 
@@ -61,6 +64,17 @@ class Cat {
     } else {
       this.sprite.halt();
     }
+
+    this.updateAngle();
+  }
+
+  updateAngle() {
+    // Add a body angle while jumping:
+    const velocity = this.sprite.body.velocity.y;
+    const maxAngleUp = 45;
+    const maxAngleDown = 20;
+    const angle = velocity < 0 ? maxAngleUp : maxAngleDown;
+    this.sprite.rotation = (velocity * (angle / this.jumpVelocity)) / 60;
   }
 
   chargeBatteries(batteries) {
@@ -86,7 +100,44 @@ class Cat {
 
   energyDifference(units) {
     const finalEnergy = (Math.sqrt(this.energy) - units) ** 2;
-    return Math.floor(this.energy - finalEnergy);
+    const difference = Math.max(0, Math.floor(this.energy - finalEnergy));
+
+    return Math.min(this.energy, difference);
+  }
+
+  collideWithAll(sprites) {
+    sprites.forEach(sprite => this.collideWith(sprite));
+  }
+
+  collideWith(obstacle) {
+    const { width, height } = obstacle;
+    const { centerX, centerY } = obstacle;
+
+    const obstacleLeftBorder = centerX - (width / 2);
+    const obstacleRightBorder = centerX + (width / 2);
+    const catRightBorder = (this.sprite.centerX + (this.sprite.width / 2)) - (this.sprite.width / 4);
+    const catLeftBorder = (this.sprite.centerX - (this.sprite.width / 2));
+    const obstacleTopBorder = centerY - (height / 2);
+    const catBottomBorder = this.sprite.centerY + (this.sprite.height / 2);
+
+    const obstacleHitsCat = obstacleLeftBorder < catRightBorder;
+    const obstaclePastCat = obstacleRightBorder <= catLeftBorder;
+    const catAboveObstacle = catBottomBorder <= obstacleTopBorder;
+    const hitCat = obstacleHitsCat && !catAboveObstacle;
+    const obstacleAvoided = !obstacle.hit && obstaclePastCat;
+
+    if (obstacleAvoided && !obstacle.avoided) {
+      obstacle.avoided = true;
+    }
+
+    if (!obstacle.avoided && !obstacle.hit && hitCat) {
+      obstacle.hit = true;
+      obstacle.destroy();
+
+      const difference = this.energyDifference(this.obstacleUnit);
+      this.energy -= difference;
+      this.meow.play();
+    }
   }
 }
 

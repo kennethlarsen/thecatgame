@@ -13,6 +13,7 @@ export default class extends Phaser.State {
     //
     this.load.spritesheet('cat-walking', 'assets/images/cat-walking.png', 500, 236, 10);
     this.load.spritesheet('snowflakes', 'assets/images/snow.png', 20, 20);
+    this.load.spritesheet('obstacles', 'assets/images/obstacles.png', 100, 100);
 
     this.load.image('ground-snow', 'assets/images/ground-snow.png');
     this.load.image('background-1', 'assets/images/bg-1.png');
@@ -21,7 +22,6 @@ export default class extends Phaser.State {
 
     this.load.audio('furry-cat', 'assets/sounds/furry_cat.mp3');
     this.load.audio('meow', 'assets/sounds/cat.wav');
-
   }
 
   create() {
