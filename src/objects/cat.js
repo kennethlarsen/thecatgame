@@ -11,6 +11,9 @@ class Cat {
     this.maxEnergy = 1000;
     this.jumpVelocity = 2500;
 
+    this.slowDownPeriod = 100;
+    this.setNextSlowDownTime(this.slowDownPeriod);
+
     this.sprite = new CatWalking({
       game,
       x,
@@ -29,6 +32,14 @@ class Cat {
     this.meow = this.game.add.audio('meow');
   }
 
+  setNextSlowDownTime(period) {
+    this.timer = this.game.time.now + period;
+  }
+
+  energyGotBurnt() {
+    return this.game.time.now > this.timer;
+  }
+
   hasEnergy() {
     return this.energy > 0;
   }
@@ -44,9 +55,10 @@ class Cat {
   }
 
   slowDown() {
-    if (this.energy > 0) {
+    if (this.energy > 0 && this.energyGotBurnt()) {
       // remove more energy for a higher energy level:
       this.energy -= Math.floor(this.speed() / 7) || 1;
+      this.setNextSlowDownTime(this.slowDownPeriod);
     }
   }
 
@@ -100,9 +112,12 @@ class Cat {
 
   energyDifference(units) {
     const finalEnergy = (Math.sqrt(this.energy) - units) ** 2;
-    const difference = Math.max(0, Math.floor(this.energy - finalEnergy));
+    const absoluteDifference = Math.floor(this.energy - finalEnergy);
+    const difference = absoluteDifference < 0
+      ? this.energy
+      : absoluteDifference;
 
-    return Math.min(this.energy, difference);
+    return difference;
   }
 
   collideWithAll(sprites) {
