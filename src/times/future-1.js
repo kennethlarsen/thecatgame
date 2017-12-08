@@ -1,23 +1,23 @@
 export default {
   background: {
     front: {
-      asset: 'background-1',
-      offset: -50,
+      asset: 'background-10',
+      offset: 15,
     },
     mid: {
-      asset: 'background-2',
-      offset: 125,
+      asset: 'background-11',
+      offset: 215,
     },
     back: {
-      asset: 'background-3',
-      offset: 300,
+      asset: 'background-12',
+      offset: 340,
     },
   },
   ground: {
-    asset: 'ground-snow',
+    asset: 'ground-stone',
   },
   obstacles: {
-    frames: [0, 1],
+    frames: [2, 3],
   },
-  weather: 'snow',
+  weather: 'rain',
 };

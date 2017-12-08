@@ -19,6 +19,8 @@ export default class extends Phaser.State {
     this.load.image('ground-grass', 'assets/images/ground-grass.png');
     this.load.image('ground-earth', 'assets/images/ground-earth.png');
     this.load.image('ground-sand', 'assets/images/ground-sand.png');
+    this.load.image('ground-stone', 'assets/images/ground-stone.png');
+
     this.load.image('background-1', 'assets/images/bg-1.png');
     this.load.image('background-2', 'assets/images/bg-2.png');
     this.load.image('background-3', 'assets/images/bg-3.png');
@@ -28,6 +30,9 @@ export default class extends Phaser.State {
     this.load.image('background-7', 'assets/images/bg-7.png');
     this.load.image('background-8', 'assets/images/bg-8.png');
     this.load.image('background-9', 'assets/images/bg-9.png');
+    this.load.image('background-10', 'assets/images/bg-10.png');
+    this.load.image('background-11', 'assets/images/bg-11.png');
+    this.load.image('background-12', 'assets/images/bg-12.png');
 
     this.load.audio('furry-cat', 'assets/sounds/furry_cat.mp3');
     this.load.audio('meow', 'assets/sounds/cat.wav');
