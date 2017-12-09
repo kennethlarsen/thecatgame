@@ -1,3 +1,4 @@
+import past2 from './past-2';
 import past1 from './past-1';
 import present from './present';
 import future1 from './future-1';
@@ -6,10 +7,16 @@ import future2 from './future-2';
 const year = (new Date()).getFullYear();
 
 export default {
+  past2: {
+    year: year - 100,
+    config: past2,
+    next: 'past1',
+  },
   past1: {
     year: year - 50,
     config: past1,
     next: 'present',
+    previous: 'past2',
   },
   present: {
     year,
