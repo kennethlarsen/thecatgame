@@ -1,22 +1,34 @@
+import times from '../times/config';
+
 class TimeMachine {
   constructor() {
+    this.time = times.present;
     this.year = (new Date()).getFullYear();
     this.yearsToTravel = 50;
   }
 
   get currentYear() {
-    return this.year;
+    return this.time.year;
+  }
+
+  get currentTime() {
+    return this.time;
   }
 
   travelToFuture(batteries) {
-    if (batteries.isCharged) {
+    if (batteries.isCharged && this.time.next) {
       batteries.use();
-      this.year += this.yearsToTravel;
+      this.time = times[this.time.next];
+      return true;
     }
+
+    return false;
   }
 
   travelToPast() {
-    this.year -= this.yearsToTravel;
+    if (this.time.previous) {
+      this.time = times[this.time.previous];
+    }
   }
 }
 

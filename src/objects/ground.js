@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
 
 class Ground {
-  constructor({ game, asset }) {
+  constructor({ game, config }) {
     this.game = game;
     this.height = 150;
 
-    this.useAsset(asset);
+    this.use(config);
   }
 
-  useAsset(asset) {
+  use(config) {
     if (this.sprite) {
       this.sprite.destroy();
     }
@@ -18,7 +18,7 @@ class Ground {
       this.game.world.height - this.height,
       this.game.world.width,
       this.height,
-      asset,
+      config.asset,
     );
 
     this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
