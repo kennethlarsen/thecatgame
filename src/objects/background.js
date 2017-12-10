@@ -34,8 +34,7 @@ class Background {
   }
 
   update(speed) {
-    // just a bit of delay, so that it looks nicer.
-    if (speed < 6) {
+    if (speed <= 0) {
       return;
     }
 

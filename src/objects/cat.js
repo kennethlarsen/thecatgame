@@ -5,13 +5,17 @@ class Cat {
   constructor({ game, x, y }) {
     this.game = game;
     this.energy = 0;
-    this.energyUnit = 20;
-    this.chargeUnit = 20;
-    this.obstacleUnit = 5;
-    this.maxEnergy = 1000;
+    this.speedUpUnit = 10;
+    this.slowDownUnit = 5;
+    this.chargeUnit = 75;
+    this.maxAutoSlowDownUnit = 5;
+    this.maxEnergy = 100;
     this.jumpVelocity = 2500;
+    this.maxFrameRate = 25;
 
-    this.slowDownPeriod = 100;
+    // every 5 second the cat slows down by 1 unit (because it burns energy ;))
+    this.slowDownPeriod = 5000;
+
     this.setNextSlowDownTime(this.slowDownPeriod);
 
     this.sprite = new CatWalking({
@@ -32,6 +36,14 @@ class Cat {
     this.meow = this.game.add.audio('meow');
   }
 
+  get totalEnergy() {
+    return this.energy;
+  }
+
+  get speed() {
+    return Math.floor((this.maxFrameRate * this.energy) / 100);
+  }
+
   setNextSlowDownTime(period) {
     this.timer = this.game.time.now + period;
   }
@@ -44,20 +56,19 @@ class Cat {
     return this.energy > 0;
   }
 
-  speed() {
-    return Math.floor(Math.sqrt(this.energy));
-  }
-
   speedUp() {
     if (this.energy < this.maxEnergy) {
-      this.energy += this.energyUnit;
+      this.energy += this.energyGain(this.speedUpUnit);
     }
   }
 
   slowDown() {
     if (this.energy > 0 && this.energyGotBurnt()) {
       // remove more energy for a higher energy level:
-      this.energy -= Math.floor(this.speed() / 7) || 1;
+      const energyRatio = this.energy / this.maxEnergy;
+      const dynamicLossUnit = Math.floor(energyRatio * this.maxAutoSlowDownUnit);
+
+      this.energy -= this.energyLoss(dynamicLossUnit) || 1;
       this.setNextSlowDownTime(this.slowDownPeriod);
     }
   }
@@ -70,8 +81,7 @@ class Cat {
 
   update() {
     if (this.hasEnergy()) {
-      const fps = this.speed();
-      this.sprite.walk(fps);
+      this.sprite.walk(this.speed);
       this.slowDown();
     } else {
       this.sprite.halt();
@@ -95,8 +105,8 @@ class Cat {
     }
 
     // always remove n units from the displayed energy:
-    const difference = this.energyDifference(this.chargeUnit);
-    const chargeLevelReached = difference >= this.chargeUnit ** 2;
+    const difference = this.energyLoss(this.chargeUnit);
+    const chargeLevelReached = difference >= this.chargeUnit;
     const enoughTotalEnergy = this.energy - difference > 0;
 
     if (!chargeLevelReached || !enoughTotalEnergy) {
@@ -110,14 +120,16 @@ class Cat {
     }
   }
 
-  energyDifference(units) {
-    const finalEnergy = (Math.sqrt(this.energy) - units) ** 2;
-    const absoluteDifference = Math.floor(this.energy - finalEnergy);
-    const difference = absoluteDifference < 0
-      ? this.energy
-      : absoluteDifference;
+  energyLoss(units) {
+    return (this.energy - Math.abs(units)) > 0
+      ? Math.abs(units)
+      : this.energy;
+  }
 
-    return difference;
+  energyGain(units) {
+    return (this.energy + units) > this.maxEnergy
+      ? this.maxEnergy - this.energy
+      : units;
   }
 
   collideWithAll(sprites) {
@@ -149,7 +161,7 @@ class Cat {
       obstacle.hit = true;
       obstacle.destroy();
 
-      const difference = this.energyDifference(this.obstacleUnit);
+      const difference = this.energyLoss(this.slowDownUnit);
       this.energy -= difference;
       this.meow.play();
     }
