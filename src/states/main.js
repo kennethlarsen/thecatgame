@@ -7,6 +7,7 @@ import Batteries from '../objects/batteries';
 import Weather from '../objects/weather';
 import Obstacle from '../objects/obstacle';
 import TimeMachine from '../objects/time-machine';
+import Mouse from '../objects/mouse';
 
 export default class extends Phaser.State {
   init(timeMachine) {
@@ -18,8 +19,6 @@ export default class extends Phaser.State {
     this.moved = false;
     this.game.time.advancedTiming = true;
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    this.batteries = new Batteries();
 
     this.background = new Background({
       game: this.game,
@@ -39,7 +38,6 @@ export default class extends Phaser.State {
     });
 
     this.weather = new Weather(this.game);
-
     // Uncomment to add weather effects
     // this.weather.addSmog();
     // this.weather.removeSmog();
@@ -55,15 +53,21 @@ export default class extends Phaser.State {
       this.weather.addSnow();
     }
 
-    this.addEnergyCounter();
-    this.addTravelLevel();
+    this.mouse = new Mouse({
+      game: this.game,
+      ground: this.ground,
+      cat: this.cat,
+    });
+
+    this.mouse.release(this.cat.sprite.centerX + 400);
+
+    this.batteries = new Batteries(this.game);
     this.addTime();
 
     const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
 
-    this.game.input.onDown.add(() => this.cat.speedUp());
     jumpKey.onDown.add(() => this.cat.jump());
     loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
     travelKey.onUp.add(() => this.travelToFuture());
@@ -78,34 +82,6 @@ export default class extends Phaser.State {
     if (traveled) {
       this.game.state.start('Main', true, false, this.timeMachine);
     }
-  }
-
-  addEnergyCounter() {
-    this.counter = this.add.text(20, 20, this.energyText(), {
-      font: `50px ${config.fonts.primary}`,
-      fill: config.fontColor,
-      align: 'left',
-    });
-  }
-
-  energyText() {
-    return `Cat energy: ${this.cat.speed()}`;
-  }
-
-  addTravelLevel() {
-    this.travelLevel = this.add.text(20, 90, this.travelLevelText(), {
-      font: `25px ${config.fonts.primary}`,
-      fill: config.fontColor,
-      align: 'left',
-    });
-  }
-
-  travelLevelText() {
-    const level = this.batteries.isCharged
-      ? 'You can travel to the future!'
-      : `Charge your batteries: ${this.batteries.chargedCount}/${this.batteries.totalCount}`;
-
-    return level;
   }
 
   addTime() {
@@ -123,17 +99,19 @@ export default class extends Phaser.State {
 
   update() {
     this.cat.update();
-    this.ground.update(this.cat.speed());
-    this.background.update(this.cat.speed());
-    this.obstacle.update(this.cat.speed());
+
+    const { speed, totalEnergy } = this.cat;
+    this.mouse.update(speed);
+    this.ground.update(speed);
+    this.background.update(speed);
+    this.obstacle.update(speed);
+    this.batteries.update(totalEnergy);
 
     if (this.time.config.weather === 'snow') {
-      this.weather.updateSnow(this.cat.speed());
+      this.weather.updateSnow(speed);
     }
 
-    this.counter.text = this.energyText();
-    this.travelLevel.text = this.travelLevelText();
-    this.timeLabel.text = this.time.year; // this.timeMachine.currentYear;
+    this.timeLabel.text = this.time.year;
 
     this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
     this.cat.collideWithAll(this.obstacle.sprites);
