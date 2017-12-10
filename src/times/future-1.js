@@ -20,4 +20,7 @@ export default {
     frames: [2, 3],
   },
   weather: 'rain',
+  mice: {
+    asset: 'mouse-gray',
+  },
 };

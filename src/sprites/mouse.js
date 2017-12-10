@@ -1,13 +1,16 @@
 import Phaser from 'phaser';
 
 export default class extends Phaser.Sprite {
-  constructor({ game, x, y }) {
-    super(game, x, y, 'mouse');
+  constructor({ game, x, y, asset }) {
+    super(game, x, y, asset);
 
     this.game.physics.enable(this, Phaser.Physics.ARCADE);
     this.body.gravity.y = 7000;
     this.body.bounce.set(0.1);
-    this.anchor.setTo(0.5);
+    this.anchor.setTo(0.5, 0.5);
+
+    this.animations.add('walk');
+    this.scale.set(-1, 1);
 
     this.setFleeStartPoint();
     this.setFleeSpeedFactor();
@@ -42,7 +45,9 @@ export default class extends Phaser.Sprite {
     this.x -= fullDistance;
 
     if (this.x < this.fleeStartPoint) {
+      this.scale.set(1, 1);
       this.body.velocity.x = Math.floor(fullDistance * this.fleeSpeedFactor);
+      this.animations.play('walk', 20, true);
     }
   }
 

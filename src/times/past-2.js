@@ -19,4 +19,7 @@ export default {
   obstacles: {
     frames: [4, 5],
   },
+  mice: {
+    asset: 'mouse-sand',
+  },
 };

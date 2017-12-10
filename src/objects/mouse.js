@@ -2,10 +2,11 @@ import Phaser from 'phaser';
 import MouseSprite from '../sprites/mouse';
 
 class Mouse {
-  constructor({ game, ground, cat }) {
+  constructor({ game, ground, cat, config }) {
     this.game = game;
     this.ground = ground;
     this.cat = cat;
+    this.config = config;
     this.maxVisible = 5;
     this.timer = 0;
     this.sprites = [];
@@ -15,12 +16,13 @@ class Mouse {
     const sprite = new MouseSprite({
       game: this.game,
       x: (x || this.game.world.width + 60),
-      y: this.game.world.height - 90,
+      y: this.game.world.height - 100,
+      asset: this.config.asset,
     });
 
     sprite.checkWorldBounds = true;
     sprite.outOfBoundsKill = true;
-    sprite.body.offset.y = -100;
+    sprite.body.offset.y = -85;
 
     sprite.events.onDestroy.add(this.remove, this);
     sprite.events.onOutOfBounds.add(this.remove, this);

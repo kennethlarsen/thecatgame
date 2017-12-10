@@ -57,6 +57,7 @@ export default class extends Phaser.State {
       game: this.game,
       ground: this.ground,
       cat: this.cat,
+      config: this.time.config.mice,
     });
 
     this.mouse.release(this.cat.sprite.centerX + 400);
