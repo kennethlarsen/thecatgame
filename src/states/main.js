@@ -68,10 +68,12 @@ export default class extends Phaser.State {
     const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
     const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
+    const pauseKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ESC);
 
     jumpKey.onDown.add(() => this.cat.jump());
     loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
     travelKey.onUp.add(() => this.travelToFuture());
+    pauseKey.onUp.add(() => this.pause());
 
     const music = this.game.add.audio('furry-cat');
     music.play();
@@ -97,6 +99,23 @@ export default class extends Phaser.State {
     });
   }
 
+  pause() {
+    this.game.paused = !this.game.paused;
+    
+    if (this.game.paused) {
+      this.pauseText = this.add.text(
+        this.world.centerX,
+        this.world.centerY,
+        'PAUSED', {
+          font: `30px ${config.fonts.secondary}`,
+          fill: config.fontColor,
+          align: 'center',
+        },
+      );
+    } else {
+      this.pauseText.destroy();
+    }
+  }
 
   update() {
     this.cat.update();
