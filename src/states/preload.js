@@ -14,6 +14,17 @@ export default class extends Phaser.State {
     this.load.spritesheet('cat-walking', 'assets/images/cat-walking.png', 500, 236, 10);
     this.load.spritesheet('snowflakes', 'assets/images/snow.png', 20, 20);
     this.load.spritesheet('obstacles', 'assets/images/obstacles.png', 100, 100);
+    this.load.spritesheet('mouse-white', 'assets/images/mouse-white.png', 180, 60, 4);
+    this.load.spritesheet('mouse-gray', 'assets/images/mouse-gray.png', 180, 60, 4);
+    this.load.spritesheet('mouse-brown', 'assets/images/mouse-brown.png', 180, 60, 4);
+    this.load.spritesheet('mouse-sand', 'assets/images/mouse-sand.png', 180, 60, 4);
+
+    this.load.image('battery', 'assets/images/battery.png');
+    this.load.image('battery-fill', 'assets/images/battery-fill.png');
+    this.load.image('battery-pack', 'assets/images/battery-pack.png');
+    this.load.image('battery-pack-bg-1', 'assets/images/battery-pack-bg-1.png');
+    this.load.image('battery-pack-bg-2', 'assets/images/battery-pack-bg-2.png');
+    this.load.image('battery-pack-bg-3', 'assets/images/battery-pack-bg-3.png');
 
     this.load.image('ground-snow', 'assets/images/ground-snow.png');
     this.load.image('ground-grass', 'assets/images/ground-grass.png');

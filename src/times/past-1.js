@@ -19,4 +19,7 @@ export default {
   obstacles: {
     frames: [2, 3],
   },
+  mice: {
+    asset: 'mouse-gray',
+  },
 };

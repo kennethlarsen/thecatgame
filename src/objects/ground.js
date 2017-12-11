@@ -27,10 +27,7 @@ class Ground {
   }
 
   update(speed) {
-    this.game.physics.arcade.collide(this.sprite);
-
-    // just a bit of delay, so that it looks nicer.
-    if (speed < 6) {
+    if (speed <= 0) {
       return;
     }
 

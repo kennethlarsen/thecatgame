@@ -6,7 +6,6 @@ class Obstacle {
     this.frames = frames;
     this.maxObstacles = 2;
     this.timer = 0;
-    this.releaseTime = 3000;
     this.sprites = [];
   }
 
