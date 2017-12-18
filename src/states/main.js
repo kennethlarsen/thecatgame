@@ -25,8 +25,6 @@ export default class extends Phaser.State {
       config: this.time.config.background,
     });
 
-    // this.background.use(futureTime1.background);
-
     this.ground = new Ground({
       game: this.game,
       config: this.time.config.ground,
@@ -37,21 +35,16 @@ export default class extends Phaser.State {
       frames: this.time.config.obstacles.frames,
     });
 
-    this.weather = new Weather(this.game);
-    // Uncomment to add weather effects
-    // this.weather.addSmog();
-    // this.weather.removeSmog();
-    // this.weather.addRain();
+    this.weather = new Weather({
+      game: this.game,
+      config: this.time.config.weather,
+    });
 
     this.cat = new Cat({
       game: this.game,
       x: this.world.centerX - 200,
       y: this.world.centerY + (this.world.centerY * 0.4),
     });
-
-    if (this.time.config.weather === 'snow') {
-      this.weather.addSnow();
-    }
 
     this.mouse = new Mouse({
       game: this.game,
@@ -61,6 +54,8 @@ export default class extends Phaser.State {
     });
 
     this.mouse.release(this.cat.sprite.centerX + 400);
+
+    this.weather.add();
 
     this.batteries = new Batteries(this.game);
     this.addTime();
@@ -74,13 +69,14 @@ export default class extends Phaser.State {
     travelKey.onUp.add(() => this.travelToFuture());
 
     const music = this.game.add.audio('furry-cat');
-    music.play();
+    music.loopFull();
   }
 
   travelToFuture() {
     const traveled = this.timeMachine.travelToFuture(this.batteries);
 
     if (traveled) {
+      this.weather.remove();
       this.game.state.start('Main', true, false, this.timeMachine);
     }
   }
@@ -97,7 +93,6 @@ export default class extends Phaser.State {
     });
   }
 
-
   update() {
     this.cat.update();
 
@@ -106,11 +101,8 @@ export default class extends Phaser.State {
     this.ground.update(speed);
     this.background.update(speed);
     this.obstacle.update(speed);
+    this.weather.update(speed);
     this.batteries.update(totalEnergy);
-
-    if (this.time.config.weather === 'snow') {
-      this.weather.updateSnow(speed);
-    }
 
     this.timeLabel.text = this.time.year;
 
@@ -124,6 +116,7 @@ export default class extends Phaser.State {
     if (this.moved && !this.cat.hasEnergy()) {
       this.batteries.use();
       this.timeMachine.travelToPast();
+      this.weather.remove();
       this.game.state.start('Main', true, false, this.timeMachine);
     }
   }
