@@ -1,3 +1,5 @@
+import Snow from '../objects/weather/snow';
+
 export default {
   background: {
     front: {
@@ -19,7 +21,19 @@ export default {
   obstacles: {
     frames: [0, 1],
   },
-  weather: 'snow',
+  weather: [
+    {
+      class: Snow,
+      config: {
+        sounds: [
+          {
+            key: 'wind-houling',
+            level: 0.3,
+          },
+        ],
+      },
+    },
+  ],
   mice: {
     asset: 'mouse-white',
   },
