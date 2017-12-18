@@ -13,6 +13,7 @@ export default class extends Phaser.State {
     //
     this.load.spritesheet('cat-walking', 'assets/images/cat-walking.png', 500, 236, 10);
     this.load.spritesheet('snowflakes', 'assets/images/snow.png', 20, 20);
+    this.load.spritesheet('rain', 'assets/images/rain.png', 6, 150);
     this.load.spritesheet('obstacles', 'assets/images/obstacles.png', 100, 100);
     this.load.spritesheet('mouse-white', 'assets/images/mouse-white.png', 180, 60, 4);
     this.load.spritesheet('mouse-gray', 'assets/images/mouse-gray.png', 180, 60, 4);
@@ -49,7 +50,9 @@ export default class extends Phaser.State {
     this.load.image('background-15', 'assets/images/bg-15.png');
 
     this.load.audio('furry-cat', 'assets/sounds/furry_cat.mp3');
-    this.load.audio('meow', 'assets/sounds/cat.wav');
+    this.load.audio('meow', 'assets/sounds/meow.mp3');
+    this.load.audio('wind-houling', 'assets/sounds/wind-houling.mp3');
+    this.load.audio('rain', 'assets/sounds/rain.mp3');
   }
 
   create() {
