@@ -1,3 +1,5 @@
+import Rain from '../objects/weather/rain';
+
 export default {
   background: {
     front: {
@@ -19,7 +21,19 @@ export default {
   obstacles: {
     frames: [2, 3],
   },
-  weather: 'rain',
+  weather: [
+    {
+      class: Rain,
+      config: {
+        sounds: [
+          {
+            key: 'rain',
+            level: 1,
+          },
+        ],
+      },
+    },
+  ],
   mice: {
     asset: 'mouse-gray',
   },
