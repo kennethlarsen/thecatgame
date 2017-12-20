@@ -8,4 +8,13 @@ export default {
     secondary: 'Pacifico',
   },
   textHoverColor: '#555555',
+  defaults: {
+    weather: {
+      fog: {
+        alpha: 0.7,
+        color: '#b2ddc8',
+        tweenDuration: 6000,
+      },
+    },
+  },
 };
