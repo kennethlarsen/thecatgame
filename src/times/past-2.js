@@ -1,25 +1,25 @@
 export default {
   background: {
     front: {
-      asset: 'background-7',
-      offset: 80,
+      asset: 'background-16',
+      offset: 40,
     },
     mid: {
-      asset: 'background-8',
-      offset: 190,
+      asset: 'background-17',
+      offset: 230,
     },
     back: {
-      asset: 'background-9',
-      offset: 410,
+      asset: 'background-18',
+      offset: 375,
     },
   },
   ground: {
     asset: 'ground-sand',
   },
   obstacles: {
-    frames: [4, 5],
+    frames: [2, 3],
   },
   mice: {
-    asset: 'mouse-sand',
+    asset: 'mouse-gray',
   },
 };
