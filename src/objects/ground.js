@@ -14,7 +14,7 @@ class Ground {
     }
 
     this.sprite = this.game.add.tileSprite(
-      this.game.world.centerX,
+      0,
       this.game.world.height - this.height,
       this.game.world.width,
       this.height,
@@ -22,7 +22,6 @@ class Ground {
     );
 
     this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
-    this.sprite.body.collideWorldBounds = true;
     this.sprite.body.immovable = true;
   }
 

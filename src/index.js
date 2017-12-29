@@ -11,7 +11,7 @@ import Intro from './states/intro';
 
 class Game extends Phaser.Game {
   constructor() {
-    super('100%', '100%', Phaser.CANVAS, 'content', null);
+    super('100%', '100%', Phaser.CANVAS, 'content');
 
     this.state.add('Boot', Boot, false);
     this.state.add('Preload', Preload, false);

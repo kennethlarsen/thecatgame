@@ -11,8 +11,12 @@ import Mouse from '../objects/mouse';
 
 export default class extends Phaser.State {
   init(timeMachine) {
+    this.game.scale.setResizeCallback(this.resize, this);
+
     this.timeMachine = timeMachine || new TimeMachine();
     this.time = this.timeMachine.currentTime;
+
+    this.scale.scaleMode = Phaser.ScaleManager.NONE;
   }
 
   create() {
@@ -40,11 +44,7 @@ export default class extends Phaser.State {
       config: this.time.config.weather,
     });
 
-    this.cat = new Cat({
-      game: this.game,
-      x: this.world.centerX - 200,
-      y: this.world.centerY + (this.world.centerY * 0.4),
-    });
+    this.cat = new Cat({ game: this.game });
 
     this.mouse = new Mouse({
       game: this.game,
@@ -53,7 +53,9 @@ export default class extends Phaser.State {
       config: this.time.config.mice,
     });
 
-    this.mouse.release(this.cat.sprite.centerX + 400);
+    this.initialMouse = this.mouse.release(
+      Math.floor(this.cat.sprite.centerX + (this.cat.sprite.width * 0.8))
+    );
 
     this.weather.add();
 
@@ -62,14 +64,26 @@ export default class extends Phaser.State {
 
     const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-    const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
+    const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.T);
+    const fullScreenKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
 
     jumpKey.onDown.add(() => this.cat.jump());
     loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
     travelKey.onUp.add(() => this.travelToFuture());
+    fullScreenKey.onUp.add(() => this.goFullscreen());
 
     const music = this.game.add.audio('furry-cat');
     music.loopFull();
+  }
+
+  goFullscreen() {
+    if (this.game.scale.isFullScreen) {
+      this.game.scale.stopFullScreen();
+    } else {
+      this.game.scale.startFullScreen();
+    }
+
+    this.resize();
   }
 
   travelToFuture() {
@@ -122,6 +136,19 @@ export default class extends Phaser.State {
   }
 
   resize() {
-    this.restart();
+    const width = Math.floor(window.innerWidth * window.devicePixelRatio);
+    const height = Math.floor(window.innerHeight * window.devicePixelRatio);
+
+    this.game.world.setBounds(0, 0, width, height);
+    this.cat.resize();
+
+    if (this.initialMouse) {
+      this.initialMouse.x = Math.floor(this.cat.sprite.centerX + (this.cat.sprite.width * 0.8));
+    }
+
+    // this.scale.setUserScale(ratio, 1 / ratio);
+    // this.scale.setupScale(width, height);
+    // this.scale.setMaximum();
+    // this.scale.refresh();
   }
 }

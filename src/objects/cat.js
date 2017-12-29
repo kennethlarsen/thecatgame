@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import CatWalking from '../sprites/cat-walking';
 
 class Cat {
-  constructor({ game, x, y }) {
+  constructor({ game }) {
     this.game = game;
     this.energy = 0;
     this.speedUpUnit = 10;
@@ -20,8 +20,8 @@ class Cat {
 
     this.sprite = new CatWalking({
       game,
-      x,
-      y,
+      x: Math.floor(game.world.centerX - (game.world.width * 0.15)),
+      y: Math.floor(game.world.centerY + (game.world.centerY * 0.4)),
       asset: 'cat-walking',
     });
 
@@ -42,6 +42,11 @@ class Cat {
 
   get speed() {
     return Math.floor((this.maxFrameRate * this.energy) / 100);
+  }
+
+  resize() {
+    this.sprite.x = Math.floor(this.game.world.centerX - (this.game.world.width * 0.15));
+    console.log(this.sprite.x);
   }
 
   setNextSlowDownTime(period) {

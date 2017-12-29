@@ -37,6 +37,8 @@ class Mouse {
     this.game.add.existing(sprite);
 
     this.setNextReleaseTime();
+
+    return sprite;
   }
 
   remove(sprite) {
