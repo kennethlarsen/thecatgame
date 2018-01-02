@@ -36,7 +36,14 @@ class Cat {
     this.sprite.body.gravity.y = 8000;
     this.sprite.body.gravity.x = 0;
     this.sprite.body.velocity.x = 0;
+    this.sprite.inputEnabled = true;
     this.meow = this.game.add.audio('meow');
+
+    this.swipeStartX = 0;
+    this.swipeStartY = 0;
+    this.swipeEndX = 0;
+    this.swipeEndY = 0;
+    this.sprite.events.onInputDown.add(this.beginSwipe, this);
   }
 
   get totalEnergy() {
@@ -45,6 +52,32 @@ class Cat {
 
   get speed() {
     return Math.floor((this.maxFrameRate * this.energy) / 100);
+  }
+
+  beginSwipe() {
+    this.swipeStartX = this.game.input.worldX;
+    this.swipeStartY = this.game.input.worldY;
+
+    this.sprite.events.onInputDown.remove(this.beginSwipe);
+    this.sprite.events.onInputUp.add(this.endSwipe, this);
+  }
+
+  endSwipe() {
+    this.swipeEndX = this.game.input.worldX;
+    this.swipeEndY = this.game.input.worldY;
+
+    const distanceX = this.swipeStartX - this.swipeEndX;
+    const distanceY = this.swipeStartY - this.swipeEndY;
+    const verticalSwipe = Math.abs(distanceY) > Math.abs(distanceX) * 2;
+    const minDistanceCovered = Math.abs(distanceY) > 10;
+    const swipedUp = distanceY > 0;
+
+    if (verticalSwipe && minDistanceCovered && swipedUp) {
+      this.jump();
+    }
+
+    this.sprite.events.onInputUp.remove(this.endSwipe);
+    this.sprite.events.onInputDown.add(this.beginSwipe);
   }
 
   resize() {
