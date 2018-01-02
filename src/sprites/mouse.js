@@ -34,13 +34,13 @@ export default class extends Phaser.Sprite {
       return;
     }
 
-    // Cat walks ca. (dist * speed/10 fps) per 1000 ms (full walking cycle).
+    // Cat walks ca. (dist * speed/20 fps) per 1000 ms (full walking cycle).
     // With an update rate of 60 fps, this is an update each 1000/60 ms.
     // So, the ground movement is:
     // (dist * speed/10) / game-fps per update call.
     const walkCycleDistance = 180;
     const { fps } = this.game.time;
-    const fullDistance = (walkCycleDistance * (speed / 10)) / fps;
+    const fullDistance = (walkCycleDistance * (speed / 20)) / fps;
 
     this.x -= fullDistance;
 

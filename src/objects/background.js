@@ -1,7 +1,7 @@
 class Background {
   constructor({ game, config }) {
     this.game = game;
-    this.height = game.world.height;
+    this.config = config;
 
     this.use(config);
   }
@@ -24,8 +24,8 @@ class Background {
     const { height } = this.game.cache.getImage(asset);
     const sprite = this.game.add.tileSprite(
       0,
-      this.game.height - height - yOffset,
-      this.game.width,
+      this.game.world.height - height - yOffset,
+      this.game.world.width,
       height,
       asset,
     );
@@ -42,6 +42,21 @@ class Background {
     this.back.tilePosition.x -= 0.1;
     this.mid.tilePosition.x -= 0.3;
     this.front.tilePosition.x -= 0.75;
+  }
+
+  resize() {
+    const { front, mid, back } = this.config;
+
+    this.resizeSprite(this.back, back.offset);
+    this.resizeSprite(this.mid, mid.offset);
+    this.resizeSprite(this.front, front.offset);
+  }
+
+  resizeSprite(sprite, yOffset) {
+    const { width, height } = this.game.world;
+
+    sprite.width = width;
+    sprite.y = height - sprite.height - yOffset;
   }
 }
 

@@ -10,7 +10,10 @@ export default class extends Phaser.Sprite {
   }
 
   move(speed) {
-    const velocity = Math.max(speed, 20);
+    const minVelocity = 20;
+    const maxVelocity = 28;
+
+    const velocity = Math.min(Math.max(speed, minVelocity), maxVelocity);
     const diameter = 100;
 
     this.rotation -= (2 * velocity) / diameter;

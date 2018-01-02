@@ -11,12 +11,11 @@ import Mouse from '../objects/mouse';
 
 export default class extends Phaser.State {
   init(timeMachine) {
-    this.game.scale.setResizeCallback(this.resize, this);
-
     this.timeMachine = timeMachine || new TimeMachine();
     this.time = this.timeMachine.currentTime;
 
-    this.scale.scaleMode = Phaser.ScaleManager.NONE;
+    this.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+    this.scale.setResizeCallback(this.resize, this);
   }
 
   create() {
@@ -82,8 +81,6 @@ export default class extends Phaser.State {
     } else {
       this.game.scale.startFullScreen();
     }
-
-    this.resize();
   }
 
   travelToFuture() {
@@ -139,16 +136,11 @@ export default class extends Phaser.State {
     const width = Math.floor(window.innerWidth * window.devicePixelRatio);
     const height = Math.floor(window.innerHeight * window.devicePixelRatio);
 
-    this.game.world.setBounds(0, 0, width, height);
+    this.scale.updateDimensions(width, height, true);
+
+    this.background.resize();
+    this.ground.resize();
     this.cat.resize();
-
-    if (this.initialMouse) {
-      this.initialMouse.x = Math.floor(this.cat.sprite.centerX + (this.cat.sprite.width * 0.8));
-    }
-
-    // this.scale.setUserScale(ratio, 1 / ratio);
-    // this.scale.setupScale(width, height);
-    // this.scale.setMaximum();
-    // this.scale.refresh();
+    this.timeLabel.x = this.game.world.width - 200;
   }
 }

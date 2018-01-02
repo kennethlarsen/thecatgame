@@ -8,14 +8,16 @@ export default class extends Phaser.Sprite {
     this.animations.add('walk');
   }
 
-  walk(fps = 10) {
+  walk(fps = 24) {
     if (this.animations.paused) {
       this.animations.paused = false;
     } else {
-      this.animations.play('walk', 10, true);
+      this.animations.play('walk', 24, true);
     }
 
-    this.animations.getAnimation('walk').delay = 1000 / fps;
+    const minRate = 8;
+    const frameRate = fps < minRate ? minRate : fps;
+    this.animations.getAnimation('walk').delay = 1000 / frameRate;
   }
 
   halt() {

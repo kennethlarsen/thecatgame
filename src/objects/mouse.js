@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 import MouseSprite from '../sprites/mouse';
 
 class Mouse {
@@ -10,13 +9,15 @@ class Mouse {
     this.maxVisible = 5;
     this.timer = 0;
     this.sprites = [];
+
+    this.spriteYOffset = 98;
   }
 
   release(x) {
     const sprite = new MouseSprite({
       game: this.game,
       x: (x || this.game.world.width + 60),
-      y: this.game.world.height - 100,
+      y: this.game.world.height - this.spriteYOffset,
       asset: this.config.asset,
     });
 
@@ -72,8 +73,18 @@ class Mouse {
         sprite.move(speed);
         sprite.updateAngle();
         this.game.physics.arcade.collide(this.ground.sprite, sprite);
+        this.ensureSpriteOffset(sprite);
       }
     });
+  }
+
+  ensureSpriteOffset(sprite) {
+    const { height } = this.game.world;
+    const beyondGround = sprite.y > height - this.spriteYOffset;
+
+    if (beyondGround) {
+      sprite.y = height - this.spriteYOffset;
+    }
   }
 
   onDragStart(sprite, pointer) {

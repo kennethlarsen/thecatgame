@@ -11,17 +11,20 @@ class Cat {
     this.maxAutoSlowDownUnit = 5;
     this.maxEnergy = 100;
     this.jumpVelocity = 2500;
-    this.maxFrameRate = 25;
+    this.maxFrameRate = 50;
 
     // every 5 second the cat slows down by 1 unit (because it burns energy ;))
     this.slowDownPeriod = 5000;
 
     this.setNextSlowDownTime(this.slowDownPeriod);
 
+    const { centerX, width, height } = game.world;
+    this.spriteYOffset = 218;
+
     this.sprite = new CatWalking({
       game,
-      x: Math.floor(game.world.centerX - (game.world.width * 0.15)),
-      y: Math.floor(game.world.centerY + (game.world.centerY * 0.4)),
+      x: Math.floor(centerX - (width * 0.15)),
+      y: Math.floor(height - this.spriteYOffset),
       asset: 'cat-walking',
     });
 
@@ -45,8 +48,8 @@ class Cat {
   }
 
   resize() {
-    this.sprite.x = Math.floor(this.game.world.centerX - (this.game.world.width * 0.15));
-    console.log(this.sprite.x);
+    const { centerX, width } = this.game.world;
+    this.sprite.x = Math.floor(centerX - (width * 0.15));
   }
 
   setNextSlowDownTime(period) {
@@ -92,7 +95,18 @@ class Cat {
       this.sprite.halt();
     }
 
+
+    this.ensureSpriteOffset();
     this.updateAngle();
+  }
+
+  ensureSpriteOffset() {
+    const { height } = this.game.world;
+    const beyondGround = this.sprite.y > height - this.spriteYOffset;
+
+    if (beyondGround) {
+      this.sprite.y = height - this.spriteYOffset;
+    }
   }
 
   updateAngle() {
