@@ -52,9 +52,7 @@ export default class extends Phaser.State {
       config: this.time.config.mice,
     });
 
-    this.initialMouse = this.mouse.release(
-      Math.floor(this.cat.sprite.centerX + (this.cat.sprite.width * 0.8))
-    );
+    this.initialMouse = this.releaseInitialMouse();
 
     this.weather.add();
 
@@ -104,6 +102,11 @@ export default class extends Phaser.State {
     });
   }
 
+  releaseInitialMouse() {
+    const { centerX, width } = this.cat.sprite;
+    return this.mouse.release(Math.floor(centerX + (width * 0.8)));
+  }
+
   update() {
     this.cat.update();
 
@@ -119,6 +122,10 @@ export default class extends Phaser.State {
 
     this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
     this.cat.collideWithAll(this.obstacle.sprites);
+
+    if (!this.moved && !this.mouse.anyReleased) {
+      this.initialMouse = this.releaseInitialMouse();
+    }
 
     if (!this.moved && this.cat.hasEnergy()) {
       this.moved = true;

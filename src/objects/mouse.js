@@ -13,6 +13,10 @@ class Mouse {
     this.spriteYOffset = 98;
   }
 
+  get anyReleased() {
+    return this.sprites.length > 0;
+  }
+
   release(x) {
     const sprite = new MouseSprite({
       game: this.game,
