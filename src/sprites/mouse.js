@@ -1,16 +1,15 @@
 import Phaser from 'phaser';
+import scaleFactor from '../utils/scale-factor';
 
 export default class extends Phaser.Sprite {
   constructor({ game, x, y, asset }) {
     super(game, x, y, asset);
 
     this.game.physics.enable(this, Phaser.Physics.ARCADE);
-    this.body.gravity.y = 7000;
     this.body.bounce.set(0.1);
-    this.anchor.setTo(0.5, 0.5);
 
+    this.anchor.setTo(0.5);
     this.animations.add('walk');
-    this.scale.set(-1, 1);
 
     this.setFleeStartPoint();
     this.setFleeSpeedFactor();
@@ -38,14 +37,15 @@ export default class extends Phaser.Sprite {
     // With an update rate of 60 fps, this is an update each 1000/60 ms.
     // So, the ground movement is:
     // (dist * speed/10) / game-fps per update call.
-    const walkCycleDistance = 180;
+    const scale = scaleFactor(this.game);
+    const walkCycleDistance = 180 * scale;
     const { fps } = this.game.time;
     const fullDistance = (walkCycleDistance * (speed / 20)) / fps;
 
-    this.x -= fullDistance;
+    this.x -= Math.ceil(fullDistance);
 
     if (this.x < this.fleeStartPoint) {
-      this.scale.set(1, 1);
+      this.scale.set(scale);
       this.body.velocity.x = Math.floor(fullDistance * this.fleeSpeedFactor);
       this.animations.play('walk', 20, true);
     }

@@ -29,6 +29,10 @@ class Weather {
     this.environments.forEach(weather => weather.update(speed));
   }
 
+  resize(scale) {
+    this.environments.forEach(weather => weather.resize(scale));
+  }
+
   remove() {
     this.environments.forEach(weather => weather.remove());
   }

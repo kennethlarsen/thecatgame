@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import scaleFactor from '../utils/scale-factor';
 
 class Ground {
   constructor({ game, config }) {
@@ -35,16 +36,21 @@ class Ground {
     // With an update rate of 60 fps, this is an update each 1000/60 ms.
     // So, the ground movement is:
     // (dist * speed/20) / game-fps per update call.
-    const walkCycleDistance = 180;
+    const scale = scaleFactor(this.game);
+    const walkCycleDistance = 180 * scale;
     const { fps } = this.game.time;
     const fullDistance = (walkCycleDistance * (speed / 20)) / fps;
 
-    this.sprite.tilePosition.x -= fullDistance;
+    this.sprite.tilePosition.x -= Math.ceil(fullDistance);
   }
 
-  resize() {
-    this.sprite.width = this.game.world.width;
-    this.sprite.y = this.game.world.height - this.height;
+  resize(scale) {
+    const { width, height } = this.game.world;
+    const scaledHeight = Math.floor(this.sprite.height * scale);
+
+    this.sprite.tileScale.set(scale);
+    this.sprite.width = width;
+    this.sprite.y = height - scaledHeight;
   }
 }
 

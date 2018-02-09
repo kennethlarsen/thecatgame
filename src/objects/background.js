@@ -44,19 +44,22 @@ class Background {
     this.front.tilePosition.x -= 0.75;
   }
 
-  resize() {
+  resize(scale) {
     const { front, mid, back } = this.config;
 
-    this.resizeSprite(this.back, back.offset);
-    this.resizeSprite(this.mid, mid.offset);
-    this.resizeSprite(this.front, front.offset);
+    this.resizeSprite(this.back, back.offset, scale);
+    this.resizeSprite(this.mid, mid.offset, scale);
+    this.resizeSprite(this.front, front.offset, scale);
   }
 
-  resizeSprite(sprite, yOffset) {
+  resizeSprite(sprite, yOffset, scale) {
     const { width, height } = this.game.world;
+    const scaledOffset = Math.floor(yOffset * scale);
+    const scaledHeight = Math.floor(sprite.height * scale);
 
+    sprite.tileScale.set(scale);
     sprite.width = width;
-    sprite.y = height - sprite.height - yOffset;
+    sprite.y = height - scaledHeight - scaledOffset;
   }
 }
 

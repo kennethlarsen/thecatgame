@@ -17,4 +17,6 @@ export default {
       },
     },
   },
+  referenceHeight: 1080,
+  groundHeight: 150,
 };

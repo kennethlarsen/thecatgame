@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import CatWalking from '../sprites/cat-walking';
+import scaleFactor from '../utils/scale-factor';
 
 class Cat {
   constructor({ game }) {
@@ -10,8 +11,13 @@ class Cat {
     this.chargeUnit = 75;
     this.maxAutoSlowDownUnit = 5;
     this.maxEnergy = 100;
-    this.jumpVelocity = 2500;
     this.maxFrameRate = 50;
+
+    this.referenceJumpVelocity = 2500;
+    this.referenceGravity = 8000;
+
+    this.jumpVelocity = this.referenceJumpVelocity;
+    this.gravity = this.referenceGravity;
 
     // every 5 second the cat slows down by 1 unit (because it burns energy ;))
     this.slowDownPeriod = 5000;
@@ -19,7 +25,8 @@ class Cat {
     this.setNextSlowDownTime(this.slowDownPeriod);
 
     const { centerX, width, height } = game.world;
-    this.spriteYOffset = 218;
+    this.spriteYOffset = 300;
+    this.spriteBodyYOffset = -90;
 
     this.sprite = new CatWalking({
       game,
@@ -31,9 +38,9 @@ class Cat {
     game.add.existing(this.sprite);
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
 
-    this.sprite.body.offset.y = -50;
+    this.sprite.body.offset.y = this.spriteBodyYOffset;
     this.sprite.body.collideWorldBounds = true;
-    this.sprite.body.gravity.y = 8000;
+    this.sprite.body.gravity.y = this.gravity;
     this.sprite.body.gravity.x = 0;
     this.sprite.body.velocity.x = 0;
     this.sprite.inputEnabled = true;
@@ -80,11 +87,6 @@ class Cat {
     this.sprite.events.onInputDown.add(this.beginSwipe);
   }
 
-  resize() {
-    const { centerX, width } = this.game.world;
-    this.sprite.x = Math.floor(centerX - (width * 0.15));
-  }
-
   setNextSlowDownTime(period) {
     this.timer = this.game.time.now + period;
   }
@@ -116,7 +118,10 @@ class Cat {
 
   jump() {
     if (this.sprite.body.touching.down) {
+      this.jumping = true;
       this.sprite.body.velocity.y = -this.jumpVelocity;
+    } else {
+      this.jumping = false;
     }
   }
 
@@ -128,17 +133,21 @@ class Cat {
       this.sprite.halt();
     }
 
-
-    this.ensureSpriteOffset();
-    this.updateAngle();
+    if (this.jumping) {
+      this.updateAngle();
+    }
   }
 
   ensureSpriteOffset() {
     const { height } = this.game.world;
-    const beyondGround = this.sprite.y > height - this.spriteYOffset;
+    const scale = scaleFactor(this.game);
+    const spriteOffset = Math.ceil(this.spriteYOffset * scale);
+    const bodyOffset = Math.floor(this.spriteBodyYOffset * scale);
+    const beyondGround = this.sprite.y > height - spriteOffset;
 
     if (beyondGround) {
-      this.sprite.y = height - this.spriteYOffset;
+      this.sprite.y = Math.floor(height - spriteOffset);
+      this.sprite.body.offset.y = bodyOffset;
     }
   }
 
@@ -149,6 +158,19 @@ class Cat {
     const maxAngleDown = 20;
     const angle = velocity < 0 ? maxAngleUp : maxAngleDown;
     this.sprite.rotation = (velocity * (angle / this.jumpVelocity)) / 60;
+  }
+
+  resize(scale) {
+    const { centerX, width, height } = this.game.world;
+
+    this.jumpVelocity = Math.floor(this.referenceJumpVelocity * scale);
+    this.sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
+
+    this.sprite.scale.set(scale);
+    this.sprite.x = Math.floor(centerX - (width * 0.15));
+    this.sprite.y = Math.floor(height - (this.spriteYOffset * scale));
+    this.sprite.body.offset.y = Math.floor(this.spriteBodyYOffset * scale);
+    this.ensureSpriteOffset();
   }
 
   chargeBatteries(batteries) {

@@ -8,6 +8,7 @@ import Weather from '../objects/weather';
 import Obstacle from '../objects/obstacle';
 import TimeMachine from '../objects/time-machine';
 import Mouse from '../objects/mouse';
+import scaleFactor from '../utils/scale-factor';
 
 export default class extends Phaser.State {
   init(timeMachine) {
@@ -52,8 +53,7 @@ export default class extends Phaser.State {
       config: this.time.config.mice,
     });
 
-    this.initialMouse = this.releaseInitialMouse();
-
+    this.releaseInitialMouse();
     this.weather.add();
 
     this.batteries = new Batteries(this.game);
@@ -71,6 +71,7 @@ export default class extends Phaser.State {
 
     const music = this.game.add.audio('furry-cat');
     music.loopFull();
+    this.resize();
   }
 
   goFullscreen() {
@@ -111,9 +112,9 @@ export default class extends Phaser.State {
     this.cat.update();
 
     const { speed, totalEnergy } = this.cat;
-    this.mouse.update(speed);
     this.ground.update(speed);
     this.background.update(speed);
+    this.mouse.update(speed);
     this.obstacle.update(speed);
     this.weather.update(speed);
     this.batteries.update(totalEnergy);
@@ -123,12 +124,12 @@ export default class extends Phaser.State {
     this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
     this.cat.collideWithAll(this.obstacle.sprites);
 
-    if (!this.moved && !this.mouse.anyReleased) {
-      this.initialMouse = this.releaseInitialMouse();
-    }
-
     if (!this.moved && this.cat.hasEnergy()) {
       this.moved = true;
+    }
+
+    if (!this.moved && !this.mouse.anyReleased) {
+      this.releaseInitialMouse();
     }
 
     if (this.moved && !this.cat.hasEnergy()) {
@@ -144,10 +145,14 @@ export default class extends Phaser.State {
     const height = Math.floor(window.innerHeight * window.devicePixelRatio);
 
     this.scale.updateDimensions(width, height, true);
+    const scale = scaleFactor(this.game);
 
-    this.background.resize();
-    this.ground.resize();
-    this.cat.resize();
+    this.background.resize(scale);
+    this.ground.resize(scale);
+    this.cat.resize(scale);
+    this.mouse.resize(scale);
+    this.weather.resize(scale);
+
     this.timeLabel.x = this.game.world.width - 200;
   }
 }

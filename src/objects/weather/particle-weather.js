@@ -11,6 +11,7 @@ class ParticleWeather {
   }
 
   add() {
+    console.warn('Please overwrite add() in your weather object!');
   }
 
   remove() {
@@ -19,6 +20,24 @@ class ParticleWeather {
     this.backEmitter.kill();
 
     this.stopSounds();
+  }
+
+  resize(scale) {
+    const { width, centerX } = this.game.world;
+
+    this.frontEmitter.scale.set(scale);
+    this.midEmitter.scale.set(scale);
+    this.backEmitter.scale.set(scale);
+
+    this.frontEmitter.x = centerX;
+    this.midEmitter.x = centerX;
+    this.backEmitter.x = centerX;
+
+    const emitterWidth = Math.floor((2 * width) / scale);
+
+    this.frontEmitter.width = emitterWidth;
+    this.midEmitter.width = emitterWidth;
+    this.backEmitter.width = emitterWidth;
   }
 
   startSounds() {
@@ -37,6 +56,7 @@ class ParticleWeather {
 
   stopSounds() {
     this.sounds.forEach(sound => sound.stop());
+    this.sounds = [];
   }
 
   setParticleXSpeed(particle, max, maxOffset = 30) {
