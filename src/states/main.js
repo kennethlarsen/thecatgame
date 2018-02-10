@@ -22,7 +22,10 @@ export default class extends Phaser.State {
   create() {
     this.moved = false;
     this.game.time.advancedTiming = true;
+
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
+    this.game.physics.arcade.checkCollision.left = false;
+    this.game.physics.arcade.checkCollision.right = false;
 
     this.background = new Background({
       game: this.game,
@@ -121,7 +124,6 @@ export default class extends Phaser.State {
 
     this.timeLabel.text = this.time.year;
 
-    this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
     this.cat.collideWithAll(this.obstacle.sprites);
 
     if (!this.moved && this.cat.hasEnergy()) {

@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 import scaleFactor from '../utils/scale-factor';
+import gameConfig from '../config';
 
 class Ground {
   constructor({ game, config }) {
     this.game = game;
     this.config = config;
-    this.height = 150;
+    this.height = gameConfig.groundHeight;
 
     this.use(config);
   }
@@ -15,16 +16,17 @@ class Ground {
       this.sprite.destroy();
     }
 
+    const { width, height } = this.game.world;
+
     this.sprite = this.game.add.tileSprite(
       0,
-      this.game.world.height - this.height,
-      this.game.world.width,
+      height,
+      width,
       this.height,
       config.asset,
     );
 
-    this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
-    this.sprite.body.immovable = true;
+    this.sprite.anchor.set(0, 1);
   }
 
   update(speed) {
@@ -41,16 +43,15 @@ class Ground {
     const { fps } = this.game.time;
     const fullDistance = (walkCycleDistance * (speed / 20)) / fps;
 
-    this.sprite.tilePosition.x -= Math.ceil(fullDistance);
+    this.sprite.tilePosition.x -= fullDistance;
   }
 
   resize(scale) {
     const { width, height } = this.game.world;
-    const scaledHeight = Math.floor(this.sprite.height * scale);
 
     this.sprite.tileScale.set(scale);
     this.sprite.width = width;
-    this.sprite.y = height - scaledHeight;
+    this.sprite.y = height;
   }
 }
 

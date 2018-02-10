@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
+import gameConfig from '../config';
 import CatWalking from '../sprites/cat-walking';
-import scaleFactor from '../utils/scale-factor';
 
 class Cat {
   constructor({ game }) {
@@ -14,33 +14,33 @@ class Cat {
     this.maxFrameRate = 50;
 
     this.referenceJumpVelocity = 2500;
-    this.referenceGravity = 8000;
-
     this.jumpVelocity = this.referenceJumpVelocity;
-    this.gravity = this.referenceGravity;
+    this.referenceGravity = 8000;
 
     // every 5 second the cat slows down by 1 unit (because it burns energy ;))
     this.slowDownPeriod = 5000;
 
     this.setNextSlowDownTime(this.slowDownPeriod);
 
+    const asset = 'cat-walking';
     const { centerX, width, height } = game.world;
-    this.spriteYOffset = 300;
-    this.spriteBodyYOffset = -90;
+
+    this.offset = gameConfig.groundHeight - 40;
 
     this.sprite = new CatWalking({
       game,
       x: Math.floor(centerX - (width * 0.15)),
-      y: Math.floor(height - this.spriteYOffset),
-      asset: 'cat-walking',
+      y: height,
+      asset,
     });
 
-    game.add.existing(this.sprite);
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
 
-    this.sprite.body.offset.y = this.spriteBodyYOffset;
+    this.sprite.body.offset.y = this.offset;
+    this.sprite.checkWorldBounds = true;
     this.sprite.body.collideWorldBounds = true;
-    this.sprite.body.gravity.y = this.gravity;
+    this.sprite.body.immovable = true;
+    this.sprite.body.gravity.y = this.referenceGravity;
     this.sprite.body.gravity.x = 0;
     this.sprite.body.velocity.x = 0;
     this.sprite.inputEnabled = true;
@@ -51,6 +51,8 @@ class Cat {
     this.swipeEndX = 0;
     this.swipeEndY = 0;
     this.sprite.events.onInputDown.add(this.beginSwipe, this);
+
+    game.add.existing(this.sprite);
   }
 
   get totalEnergy() {
@@ -117,7 +119,7 @@ class Cat {
   }
 
   jump() {
-    if (this.sprite.body.touching.down) {
+    if (this.sprite.body.blocked.down) {
       this.jumping = true;
       this.sprite.body.velocity.y = -this.jumpVelocity;
     } else {
@@ -135,19 +137,8 @@ class Cat {
 
     if (this.jumping) {
       this.updateAngle();
-    }
-  }
-
-  ensureSpriteOffset() {
-    const { height } = this.game.world;
-    const scale = scaleFactor(this.game);
-    const spriteOffset = Math.ceil(this.spriteYOffset * scale);
-    const bodyOffset = Math.floor(this.spriteBodyYOffset * scale);
-    const beyondGround = this.sprite.y > height - spriteOffset;
-
-    if (beyondGround) {
-      this.sprite.y = Math.floor(height - spriteOffset);
-      this.sprite.body.offset.y = bodyOffset;
+    } else {
+      this.resetAngle();
     }
   }
 
@@ -157,20 +148,25 @@ class Cat {
     const maxAngleUp = 45;
     const maxAngleDown = 20;
     const angle = velocity < 0 ? maxAngleUp : maxAngleDown;
-    this.sprite.rotation = (velocity * (angle / this.jumpVelocity)) / 60;
+    const fps = 60;
+
+    this.sprite.rotation = (velocity * (angle / this.jumpVelocity)) / fps;
+  }
+
+  resetAngle() {
+    this.sprite.rotation = 0;
   }
 
   resize(scale) {
     const { centerX, width, height } = this.game.world;
 
+    this.sprite.x = Math.floor(centerX - (width * 0.15));
+    this.sprite.y = height;
+
     this.jumpVelocity = Math.floor(this.referenceJumpVelocity * scale);
     this.sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
 
     this.sprite.scale.set(scale);
-    this.sprite.x = Math.floor(centerX - (width * 0.15));
-    this.sprite.y = Math.floor(height - (this.spriteYOffset * scale));
-    this.sprite.body.offset.y = Math.floor(this.spriteBodyYOffset * scale);
-    this.ensureSpriteOffset();
   }
 
   chargeBatteries(batteries) {

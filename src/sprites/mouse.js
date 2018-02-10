@@ -42,7 +42,7 @@ export default class extends Phaser.Sprite {
     const { fps } = this.game.time;
     const fullDistance = (walkCycleDistance * (speed / 20)) / fps;
 
-    this.x -= Math.ceil(fullDistance);
+    this.x -= fullDistance;
 
     if (this.x < this.fleeStartPoint) {
       this.scale.set(scale);
@@ -56,6 +56,8 @@ export default class extends Phaser.Sprite {
     const velocity = this.body.velocity.y;
     const maxAngle = 75;
     const angle = velocity && maxAngle;
-    this.rotation = (velocity * (angle / this.body.gravity.y)) / 60;
+    const sign = this.scale.x < 0 ? -1 : 1;
+
+    this.rotation = sign * ((velocity * (angle / this.body.gravity.y)) / 60);
   }
 }

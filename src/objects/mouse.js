@@ -13,8 +13,7 @@ class Mouse {
     this.sprites = [];
 
     this.referenceGravity = 7000;
-    this.spriteYOffset = gameConfig.groundHeight;
-    this.spriteBodyYOffset = -86;
+    this.offset = gameConfig.groundHeight - 90;
   }
 
   get anyReleased() {
@@ -24,21 +23,21 @@ class Mouse {
   release(x) {
     const { width, height } = this.game.world;
     const scale = scaleFactor(this.game);
-    const spriteOffset = Math.ceil(this.spriteYOffset * scale);
 
     const sprite = new MouseSprite({
       game: this.game,
       x: (x || width + Math.floor(60 * scale)),
-      y: Math.floor(height - spriteOffset),
+      y: height,
       asset: this.config.asset,
     });
 
-    sprite.scale.set(-scale, scale);
-    sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
-    sprite.body.offset.y = Math.floor(this.spriteBodyYOffset * scale);
-
     sprite.checkWorldBounds = true;
+    sprite.body.collideWorldBounds = true;
     sprite.outOfBoundsKill = true;
+
+    sprite.body.offset.y = this.offset;
+    sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
+    sprite.scale.set(-scale, scale);
 
     sprite.events.onDestroy.add(this.remove, this);
     sprite.events.onOutOfBounds.add(this.remove, this);
@@ -50,9 +49,9 @@ class Mouse {
     sprite.events.onDragStop.add(this.onDragStop, this);
 
     this.sprites.push(sprite);
-    this.game.add.existing(sprite);
 
     this.setNextReleaseTime();
+    this.game.add.existing(sprite);
 
     return sprite;
   }
@@ -86,13 +85,7 @@ class Mouse {
     this.sprites.forEach((sprite) => {
       if (!sprite.input.isDragged) {
         sprite.move(speed);
-
-        if (speed > 0) {
-          sprite.updateAngle();
-        }
-
-        this.game.physics.arcade.collide(this.ground.sprite, sprite);
-        // this.ensureSpriteOffset(sprite);
+        sprite.updateAngle();
       }
     });
   }
@@ -101,27 +94,11 @@ class Mouse {
     const { height } = this.game.world;
 
     this.sprites.forEach((sprite) => {
-      const { x } = sprite.scale;
-      const xScale = x < 0 ? -1 : 1;
+      const xScale = sprite.scale.x < 0 ? -1 : 1;
+      sprite.body.y = height;
+      sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
       sprite.scale.set(xScale * scale, scale);
-      sprite.body.y = Math.floor(height - (this.spriteYOffset * scale))
-      sprite.body.offset.y = Math.floor(this.spriteBodyYOffset * scale);
-
-      this.game.physics.arcade.collide(this.ground.sprite, sprite);
     });
-  }
-
-  ensureSpriteOffset(sprite) {
-    const { height } = this.game.world;
-    const scale = scaleFactor(this.game);
-    const spriteOffset = Math.ceil(this.spriteYOffset * scale);
-    const bodyOffset = Math.floor(this.spriteBodyYOffset * scale);
-    const beyondGround = sprite.y > height - spriteOffset;
-
-    if (beyondGround) {
-      sprite.y = Math.floor(height - spriteOffset);
-      sprite.body.offset.y = bodyOffset;
-    }
   }
 
   onDragStart(sprite, pointer) {
