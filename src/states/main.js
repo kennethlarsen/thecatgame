@@ -9,6 +9,7 @@ import Obstacle from '../objects/obstacle';
 import TimeMachine from '../objects/time-machine';
 import Mouse from '../objects/mouse';
 import scaleFactor from '../utils/scale-factor';
+import destroy from '../utils/safe-destroy';
 
 export default class extends Phaser.State {
   init(timeMachine) {
@@ -100,9 +101,7 @@ export default class extends Phaser.State {
     const text = this.timeMachine.currentYear;
     const fontSize = Math.floor(config.reference.fontSize.large * scale);
 
-    if (this.timeLabel) {
-      this.timeLabel.destroy();
-    }
+    destroy(this.timeLabel);
 
     this.timeLabel = this.add.text(x, y, text, {
       font: `${fontSize}px ${config.fonts.secondary}`,
