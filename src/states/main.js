@@ -39,7 +39,7 @@ export default class extends Phaser.State {
 
     this.obstacle = new Obstacle({
       game: this.game,
-      frames: this.time.config.obstacles.frames,
+      config: this.time.config.obstacles,
     });
 
     this.weather = new Weather({
@@ -153,6 +153,7 @@ export default class extends Phaser.State {
     this.ground.resize(scale);
     this.cat.resize(scale);
     this.mouse.resize(scale);
+    this.obstacle.resize(scale);
     this.weather.resize(scale);
 
     this.timeLabel.x = this.game.world.width - 200;
