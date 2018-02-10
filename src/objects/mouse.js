@@ -13,7 +13,7 @@ class Mouse {
     this.sprites = [];
 
     this.referenceGravity = 7000;
-    this.offset = gameConfig.groundHeight - 90;
+    this.offset = gameConfig.reference.groundHeight - 90;
   }
 
   get anyReleased() {

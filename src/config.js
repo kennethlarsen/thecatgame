@@ -17,6 +17,8 @@ export default {
       },
     },
   },
-  referenceHeight: 1080,
-  groundHeight: 150,
+  reference: {
+    height: 1080,
+    groundHeight: 150,
+  },
 };

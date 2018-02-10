@@ -6,7 +6,7 @@ class Ground {
   constructor({ game, config }) {
     this.game = game;
     this.config = config;
-    this.height = gameConfig.groundHeight;
+    this.height = gameConfig.reference.groundHeight;
 
     this.use(config);
   }

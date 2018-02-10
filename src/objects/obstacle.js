@@ -10,7 +10,7 @@ class Obstacle {
     this.timer = 0;
     this.sprites = [];
 
-    this.offset = gameConfig.groundHeight - 40;
+    this.offset = gameConfig.reference.groundHeight - 40;
   }
 
   release(frame) {

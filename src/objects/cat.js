@@ -25,7 +25,7 @@ class Cat {
     const asset = 'cat-walking';
     const { centerX, width, height } = game.world;
 
-    this.offset = gameConfig.groundHeight - 40;
+    this.offset = gameConfig.reference.groundHeight - 40;
 
     this.sprite = new CatWalking({
       game,
