@@ -22,6 +22,7 @@ export default {
     groundHeight: 150,
     fontSize: {
       large: 75,
+      medium: 35,
     },
   },
 };

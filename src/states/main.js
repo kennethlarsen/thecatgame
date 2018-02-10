@@ -159,6 +159,7 @@ export default class extends Phaser.State {
     this.mouse.resize(scale);
     this.obstacle.resize(scale);
     this.weather.resize(scale);
+    this.batteries.resize(scale);
 
     this.addTime(scale);
   }
