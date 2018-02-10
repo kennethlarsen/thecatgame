@@ -94,13 +94,18 @@ export default class extends Phaser.State {
     }
   }
 
-  addTime() {
-    const x = this.game.world.width - 200;
-    const y = 20;
+  addTime(scale = 1) {
+    const x = Math.floor(this.game.world.width - (200 * scale));
+    const y = Math.floor(20 * scale);
     const text = this.timeMachine.currentYear;
+    const fontSize = Math.floor(config.reference.fontSize.large * scale);
+
+    if (this.timeLabel) {
+      this.timeLabel.destroy();
+    }
 
     this.timeLabel = this.add.text(x, y, text, {
-      font: `75px ${config.fonts.secondary}`,
+      font: `${fontSize}px ${config.fonts.secondary}`,
       fill: config.fontColor,
       align: 'right',
     });
@@ -156,6 +161,6 @@ export default class extends Phaser.State {
     this.obstacle.resize(scale);
     this.weather.resize(scale);
 
-    this.timeLabel.x = this.game.world.width - 200;
+    this.addTime(scale);
   }
 }
