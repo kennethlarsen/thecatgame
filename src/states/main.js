@@ -69,13 +69,28 @@ export default class extends Phaser.State {
     const fullScreenKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
 
     jumpKey.onDown.add(() => this.cat.jump());
-    loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
+    loadKey.onUp.add(() => this.chargeBatteries());
     travelKey.onUp.add(() => this.travelToFuture());
     fullScreenKey.onUp.add(() => this.goFullscreen());
+
+    this.batteries.onCharge.add(() => this.chargeBatteries());
+    this.batteries.onPackDropped.add((x, y) => this.handleBatteryPackDropped(x, y));
 
     const music = this.game.add.audio('furry-cat');
     music.loopFull();
     this.resize();
+  }
+
+  chargeBatteries() {
+    this.cat.chargeBatteries(this.batteries);
+  }
+
+  handleBatteryPackDropped(x, y) {
+    const isOverCat = this.cat.sprite.getBounds().contains(x, y);
+
+    if (isOverCat) {
+      this.travelToFuture();
+    }
   }
 
   goFullscreen() {

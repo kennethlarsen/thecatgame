@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
+
 import config from '../config';
 import destroy from '../utils/safe-destroy';
+import makeDraggable from '../utils/make-draggable';
 
 const batteryColors = {
   empty: 0xffffff,
@@ -16,6 +18,9 @@ class Batteries {
   constructor(game) {
     this.game = game;
 
+    this.onCharge = new Phaser.Signal();
+    this.onPackDropped = new Phaser.Signal();
+
     this.firstCharged = false;
     this.secondCharged = false;
     this.thirdCharged = false;
@@ -25,13 +30,16 @@ class Batteries {
       y: 20,
     };
 
+    this.draw();
+  }
 
-    this.addMainBattery();
-    this.addBatteryPack();
+  draw(scale = 1) {
+    this.addBatteryPack(scale);
+    this.addMainBattery(scale);
   }
 
   addMainBattery(scale = 1) {
-    destroy(this.mainBatteryBack, this.mainBatteryFill, this.mainBattery);
+    destroy(this.mainBatteryGroup);
 
     const { x, y } = this.mainCoord;
     const scaledX = Math.floor(x * scale);
@@ -39,9 +47,13 @@ class Batteries {
     const scaledFillX = Math.floor((x + 9) * scale);
     const scaledFillY = Math.floor((y + 10) * scale);
 
-    this.mainBatteryBack = this.game.add.sprite(scaledFillX, scaledFillY, 'battery-fill');
-    this.mainBatteryFill = this.game.add.sprite(scaledFillX, scaledFillY, 'battery-fill');
-    this.mainBattery = this.game.add.sprite(scaledX, scaledY, 'battery');
+    this.mainBatteryGroup = this.game.add.group();
+    this.mainBatteryGroup.enableBody = true;
+    this.mainBatteryGroup.physicsBodyType = Phaser.Physics.ARCADE;
+
+    this.mainBatteryBack = this.mainBatteryGroup.create(scaledFillX, scaledFillY, 'battery-fill');
+    this.mainBatteryFill = this.mainBatteryGroup.create(scaledFillX, scaledFillY, 'battery-fill');
+    this.mainBattery = this.mainBatteryGroup.create(scaledX, scaledY, 'battery');
 
     this.mainBatteryWidth = this.mainBatteryFill.width;
     this.mainBatteryHeight = this.mainBattery.height;
@@ -51,16 +63,33 @@ class Batteries {
     this.mainBatteryFill.scale.set(scale);
     this.mainBattery.scale.set(scale);
 
-    this.addMainBatteryLabel(scale);
+    this.addMainBatteryLabel(this.mainBatteryGroup, scale);
     this.addMainBatteryScale(fillHeight);
+
+    makeDraggable({
+      item: this.mainBatteryGroup,
+      onDrop: (item, pointer) => {
+        const originX = item.origin.x;
+        const originY = item.origin.y;
+
+        this.game.add.tween(item)
+          .to({ x: originX, y: originY }, 200, null, true);
+      },
+      dropAction: (item, pointer) => {
+        const isOverPack = this.mainBatteryBack.getBounds()
+          .contains(pointer.x, pointer.y);
+
+        if (isOverPack) {
+          this.onCharge.dispatch();
+        }
+      },
+    });
   }
 
-  addMainBatteryLabel(scale = 1) {
+  addMainBatteryLabel(group, scale = 1) {
     const font = config.fonts.secondary;
     const fontSize = Math.floor(config.reference.fontSize.medium * scale);
     const { centerX, centerY } = this.mainBatteryFill;
-
-    destroy(this.mainBatteryLabel);
 
     this.mainBatteryLabel = this.game.add.text(
       centerX,
@@ -71,6 +100,7 @@ class Batteries {
         fill: '#ffffff',
         align: 'left',
       },
+      group,
     );
 
     this.mainBatteryLabel.anchor.set(0.5);
@@ -82,9 +112,7 @@ class Batteries {
   }
 
   addBatteryPack(scale = 1) {
-    destroy(this.packBg1, this.packBg2, this.packBg3);
-    destroy(this.packFill1, this.packFill2, this.packFill3);
-    destroy(this.pack);
+    destroy(this.batteryPackGroup);
 
     const { x, y } = this.mainCoord;
     const packY = y + this.mainBatteryHeight + 30;
@@ -97,18 +125,22 @@ class Batteries {
     const x3 = Math.floor((x + 14) * scale);
     const y3 = Math.floor((packY + 97) * scale);
 
-    this.packBg1 = this.game.add.sprite(x1, y1, 'battery-pack-bg-1');
-    this.packBg2 = this.game.add.sprite(x2, y2, 'battery-pack-bg-2');
-    this.packBg3 = this.game.add.sprite(x3, y3, 'battery-pack-bg-3');
+    this.batteryPackGroup = this.game.add.group();
+    this.batteryPackGroup.enableBody = true;
+    this.batteryPackGroup.physicsBodyType = Phaser.Physics.ARCADE;
+
+    this.packBg1 = this.batteryPackGroup.create(x1, y1, 'battery-pack-bg-1');
+    this.packBg2 = this.batteryPackGroup.create(x2, y2, 'battery-pack-bg-2');
+    this.packBg3 = this.batteryPackGroup.create(x3, y3, 'battery-pack-bg-3');
 
     // to-be-tinted-and-tweened backgrounds:
     const scaledX = Math.floor(x * scale);
     const scaledY = Math.floor(packY * scale);
 
-    this.packFill1 = this.game.add.sprite(x1, y1, 'battery-pack-bg-1');
-    this.packFill2 = this.game.add.sprite(x2, y2, 'battery-pack-bg-2');
-    this.packFill3 = this.game.add.sprite(x3, y3, 'battery-pack-bg-3');
-    this.pack = this.game.add.sprite(scaledX, scaledY, 'battery-pack');
+    this.packFill1 = this.batteryPackGroup.create(x1, y1, 'battery-pack-bg-1');
+    this.packFill2 = this.batteryPackGroup.create(x2, y2, 'battery-pack-bg-2');
+    this.packFill3 = this.batteryPackGroup.create(x3, y3, 'battery-pack-bg-3');
+    this.pack = this.batteryPackGroup.create(scaledX, scaledY, 'battery-pack');
 
     this.packFill1.tint = batteryColors.fullB;
     this.packFill2.tint = batteryColors.fullB;
@@ -131,6 +163,20 @@ class Batteries {
     this.pack.scale.set(scale);
 
     this.addBatteryPackScale(firstHeight, secondHeight, thirdHeight);
+
+    makeDraggable({
+      item: this.batteryPackGroup,
+      onDrop: (item) => {
+        const originX = item.origin.x;
+        const originY = item.origin.y;
+
+        this.game.add.tween(item)
+          .to({ x: originX, y: originY }, 200, null, true);
+      },
+      dropAction: (item, position) => {
+        this.onPackDropped.dispatch(position.x, position.y);
+      },
+    });
   }
 
   addBatteryPackScale(firstHeight, secondHeight, thirdHeight) {
@@ -184,8 +230,7 @@ class Batteries {
   }
 
   resize(scale) {
-    this.addMainBattery(scale);
-    this.addBatteryPack(scale);
+    this.draw(scale);
 
     if (this.firstCharged) {
       this.fillPackTank(this.packFill1Mask, this.packFill1Width);
