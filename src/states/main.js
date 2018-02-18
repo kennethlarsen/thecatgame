@@ -10,6 +10,7 @@ import TimeMachine from '../objects/time-machine';
 import Mouse from '../objects/mouse';
 import scaleFactor from '../utils/scale-factor';
 import destroy from '../utils/safe-destroy';
+import enableFullscreen from '../utils/enable-fullscreen';
 
 export default class extends Phaser.State {
   init(timeMachine) {
@@ -18,6 +19,8 @@ export default class extends Phaser.State {
 
     this.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
     this.scale.setResizeCallback(this.resize, this);
+
+    enableFullscreen(this.game);
   }
 
   create() {
@@ -71,7 +74,6 @@ export default class extends Phaser.State {
     jumpKey.onDown.add(() => this.cat.jump());
     loadKey.onUp.add(() => this.chargeBatteries());
     travelKey.onUp.add(() => this.travelToFuture());
-    fullScreenKey.onUp.add(() => this.goFullscreen());
 
     this.batteries.onCharge.add(() => this.chargeBatteries());
     this.batteries.onPackDropped.add((x, y) => this.handleBatteryPackDropped(x, y));
@@ -90,14 +92,6 @@ export default class extends Phaser.State {
 
     if (isOverCat) {
       this.travelToFuture();
-    }
-  }
-
-  goFullscreen() {
-    if (this.game.scale.isFullScreen) {
-      this.game.scale.stopFullScreen();
-    } else {
-      this.game.scale.startFullScreen();
     }
   }
 

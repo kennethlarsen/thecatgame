@@ -3,11 +3,14 @@ import config from '../config';
 import CatWalking from '../sprites/cat-walking';
 import scaleFactor from '../utils/scale-factor';
 import destroy from '../utils/safe-destroy';
+import enableFullscreen from '../utils/enable-fullscreen';
 
 export default class extends Phaser.State {
   init() {
     this.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
     this.scale.setResizeCallback(this.resize, this);
+
+    enableFullscreen(this.game);
   }
 
   create() {
