@@ -1,5 +1,6 @@
-import Phaser from 'phaser';
 import MouseSprite from '../sprites/mouse';
+import scaleFactor from '../utils/scale-factor';
+import gameConfig from '../config';
 
 class Mouse {
   constructor({ game, ground, cat, config }) {
@@ -10,19 +11,33 @@ class Mouse {
     this.maxVisible = 5;
     this.timer = 0;
     this.sprites = [];
+
+    this.referenceGravity = 7000;
+    this.offset = gameConfig.reference.groundHeight - 90;
+  }
+
+  get anyReleased() {
+    return this.sprites.length > 0;
   }
 
   release(x) {
+    const { width, height } = this.game.world;
+    const scale = scaleFactor(this.game);
+
     const sprite = new MouseSprite({
       game: this.game,
-      x: (x || this.game.world.width + 60),
-      y: this.game.world.height - 100,
+      x: (x || width + Math.floor(60 * scale)),
+      y: height,
       asset: this.config.asset,
     });
 
     sprite.checkWorldBounds = true;
+    sprite.body.collideWorldBounds = true;
     sprite.outOfBoundsKill = true;
-    sprite.body.offset.y = -85;
+
+    sprite.body.offset.y = this.offset;
+    sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
+    sprite.scale.set(-scale, scale);
 
     sprite.events.onDestroy.add(this.remove, this);
     sprite.events.onOutOfBounds.add(this.remove, this);
@@ -34,9 +49,11 @@ class Mouse {
     sprite.events.onDragStop.add(this.onDragStop, this);
 
     this.sprites.push(sprite);
-    this.game.add.existing(sprite);
 
     this.setNextReleaseTime();
+    this.game.add.existing(sprite);
+
+    return sprite;
   }
 
   remove(sprite) {
@@ -69,8 +86,18 @@ class Mouse {
       if (!sprite.input.isDragged) {
         sprite.move(speed);
         sprite.updateAngle();
-        this.game.physics.arcade.collide(this.ground.sprite, sprite);
       }
+    });
+  }
+
+  resize(scale) {
+    const { height } = this.game.world;
+
+    this.sprites.forEach((sprite) => {
+      const xScale = sprite.scale.x < 0 ? -1 : 1;
+      sprite.body.y = height;
+      sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
+      sprite.scale.set(xScale * scale, scale);
     });
   }
 

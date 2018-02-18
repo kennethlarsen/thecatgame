@@ -17,4 +17,12 @@ export default {
       },
     },
   },
+  reference: {
+    height: 1080,
+    groundHeight: 150,
+    fontSize: {
+      large: 75,
+      medium: 35,
+    },
+  },
 };

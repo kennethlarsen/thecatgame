@@ -1,56 +1,90 @@
 import Phaser from 'phaser';
 import config from '../config';
 import CatWalking from '../sprites/cat-walking';
+import scaleFactor from '../utils/scale-factor';
+import destroy from '../utils/safe-destroy';
+import enableFullscreen from '../utils/enable-fullscreen';
 
 export default class extends Phaser.State {
+  init() {
+    this.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+    this.scale.setResizeCallback(this.resize, this);
+
+    enableFullscreen(this.game);
+  }
+
   create() {
-    this.addTitle();
-    this.addCat();
-    this.addStartButton();
+    this.draw();
+    this.resize();
   }
 
-  addTitle() {
-    this.add.text(
-      this.game.world.centerX,
-      this.game.world.centerY - (this.game.world.centerY * 0.8),
-      config.gameName,
-      {
-        font: `50px ${config.fonts.secondary}`,
-        fill: config.fontColor,
-        align: 'center',
-      },
-    ).anchor.set(0.5);
+  draw(scale = 1) {
+    this.addTitle(scale);
+    this.addStartButton(scale);
+    this.addCat(scale);
   }
 
-  addCat() {
-    const cat = new CatWalking({
+  resize() {
+    const width = Math.floor(window.innerWidth * window.devicePixelRatio);
+    const height = Math.floor(window.innerHeight * window.devicePixelRatio);
+
+    this.scale.updateDimensions(width, height, true);
+    const scale = scaleFactor(this.game);
+
+    this.draw(scale);
+  }
+
+  addTitle(scale) {
+    destroy(this.title);
+
+    const { centerX, centerY } = this.game.world;
+    const y = Math.floor(centerY - (300 * scale));
+    const fontSize = 50 * scale;
+
+    this.title = this.add.text(centerX, y, config.gameName, {
+      font: `${fontSize}px ${config.fonts.secondary}`,
+      fill: config.fontColor,
+      align: 'center',
+    });
+
+    this.title.anchor.set(0.5);
+  }
+
+  addCat(scale) {
+    destroy(this.cat);
+
+    const { centerX, centerY } = this.game.world;
+    const y = Math.floor(centerY + (200 * scale));
+
+    this.cat = new CatWalking({
       game: this.game,
-      x: this.world.centerX,
-      y: this.world.centerY + (this.world.centerY * 0.4),
+      x: centerX,
+      y,
       asset: 'cat-walking',
     });
 
-    this.game.add.existing(cat);
-    cat.walk();
+    this.cat.scale.setTo(scale);
+    this.game.add.existing(this.cat);
+    this.cat.walk();
   }
 
-  addStartButton() {
-    const startButton = this.add.text(
-      this.game.world.centerX,
-      this.game.world.centerY,
-      'start',
-      {
-        font: `45px ${config.fonts.secondary}`,
-        fill: config.fontColor,
-        align: 'center',
-      },
-    );
+  addStartButton(scale) {
+    destroy(this.startButton);
 
-    startButton.anchor.set(0.5);
-    startButton.inputEnabled = true;
-    startButton.events.onInputOver.add(this.over, this);
-    startButton.events.onInputOut.add(this.out, this);
-    startButton.events.onInputUp.add(this.startGame, this);
+    const { centerX, centerY } = this.game.world;
+    const fontSize = 45 * scale;
+
+    this.startButton = this.add.text(centerX, centerY, 'start', {
+      font: `${fontSize}px ${config.fonts.secondary}`,
+      fill: config.fontColor,
+      align: 'center',
+    });
+
+    this.startButton.anchor.set(0.5);
+    this.startButton.inputEnabled = true;
+    this.startButton.events.onInputOver.add(this.over, this);
+    this.startButton.events.onInputOut.add(this.out, this);
+    this.startButton.events.onInputUp.add(this.startGame, this);
   }
 
   over(item) {

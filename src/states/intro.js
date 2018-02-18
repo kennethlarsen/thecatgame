@@ -1,8 +1,34 @@
 import Phaser from 'phaser';
 import config from '../config';
+import scaleFactor from '../utils/scale-factor';
+import destroy from '../utils/safe-destroy';
+import enableFullscreen from '../utils/enable-fullscreen';
 
 export default class extends Phaser.State {
+  init() {
+    this.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+    this.scale.setResizeCallback(this.resize, this);
+
+    enableFullscreen(this.game);
+  }
+
   create() {
+    this.addText();
+    this.resize();
+    this.typeText();
+  }
+
+  addText() {
+    const fontSize = config.reference.fontSize.medium;
+
+    this.text = this.game.add.text(0, 0, '', {
+      font: `${fontSize}px ${config.fonts.primary}`,
+      fill: config.fontColor,
+      align: 'left',
+    });
+  }
+
+  typeText() {
     this.content = [
       `${(new Date()).getFullYear()}.`,
       '',
@@ -25,23 +51,14 @@ export default class extends Phaser.State {
     this.wordDelay = 160;
     this.lineDelay = 450;
 
-    this.text = this.game.add.text(
-      32,
-      32,
-      '',
-      {
-        font: `30px ${config.fonts.primary}`,
-        fill: config.fontColor,
-      },
-    );
-
     this.nextLine();
   }
 
   nextLine() {
     if (this.lineIndex === this.content.length) {
       //  We're finished, add start button
-      this.addStartButton();
+      const scale = scaleFactor(this.game);
+      this.addStartButton(scale);
       return;
     }
 
@@ -63,23 +80,28 @@ export default class extends Phaser.State {
     }
   }
 
-  addStartButton() {
-    const startButton = this.add.text(
-      this.game.world.centerX,
-      this.game.world.centerY,
+  addStartButton(scale = 1) {
+    destroy(this.startButton);
+
+    const fontSize = Math.ceil(45 * scale);
+    const { centerX, height } = this.game.world;
+
+    this.startButton = this.add.text(
+      centerX,
+      height - (300 * scale),
       'save the world',
       {
-        font: `45px ${config.fonts.secondary}`,
+        font: `${fontSize}px ${config.fonts.secondary}`,
         fill: config.fontColor,
         align: 'center',
       },
     );
 
-    startButton.anchor.set(0.5);
-    startButton.inputEnabled = true;
-    startButton.events.onInputOver.add(this.over, this);
-    startButton.events.onInputOut.add(this.out, this);
-    startButton.events.onInputUp.add(this.startGame, this);
+    this.startButton.anchor.set(0.5);
+    this.startButton.inputEnabled = true;
+    this.startButton.events.onInputOver.add(this.over, this);
+    this.startButton.events.onInputOut.add(this.out, this);
+    this.startButton.events.onInputUp.add(this.startGame, this);
   }
 
   over(item) {
@@ -95,5 +117,24 @@ export default class extends Phaser.State {
   startGame() {
     window.localStorage.setItem(`${config.localStorageName}-watchedIntro`, true);
     this.game.state.start('Main');
+  }
+
+  resize() {
+    const width = Math.floor(window.innerWidth * window.devicePixelRatio);
+    const height = Math.floor(window.innerHeight * window.devicePixelRatio);
+
+    this.scale.updateDimensions(width, height, true);
+
+    const textMaxWidth = 1120;
+    const widthRatio = textMaxWidth > width ? width / textMaxWidth : 1;
+    const scale = scaleFactor(this.game) * widthRatio;
+
+    this.text.x = this.game.world.centerX - (textMaxWidth * 0.5 * scale);
+    this.text.y = 80 * scale;
+    this.text.scale.setTo(scale);
+
+    if (this.startButton) {
+      this.addStartButton(scale);
+    }
   }
 }

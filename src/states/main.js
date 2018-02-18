@@ -8,17 +8,28 @@ import Weather from '../objects/weather';
 import Obstacle from '../objects/obstacle';
 import TimeMachine from '../objects/time-machine';
 import Mouse from '../objects/mouse';
+import scaleFactor from '../utils/scale-factor';
+import destroy from '../utils/safe-destroy';
+import enableFullscreen from '../utils/enable-fullscreen';
 
 export default class extends Phaser.State {
   init(timeMachine) {
     this.timeMachine = timeMachine || new TimeMachine();
     this.time = this.timeMachine.currentTime;
+
+    this.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
+    this.scale.setResizeCallback(this.resize, this);
+
+    enableFullscreen(this.game);
   }
 
   create() {
     this.moved = false;
     this.game.time.advancedTiming = true;
+
     this.game.physics.startSystem(Phaser.Physics.ARCADE);
+    this.game.physics.arcade.checkCollision.left = false;
+    this.game.physics.arcade.checkCollision.right = false;
 
     this.background = new Background({
       game: this.game,
@@ -32,7 +43,7 @@ export default class extends Phaser.State {
 
     this.obstacle = new Obstacle({
       game: this.game,
-      frames: this.time.config.obstacles.frames,
+      config: this.time.config.obstacles,
     });
 
     this.weather = new Weather({
@@ -40,11 +51,7 @@ export default class extends Phaser.State {
       config: this.time.config.weather,
     });
 
-    this.cat = new Cat({
-      game: this.game,
-      x: this.world.centerX - 200,
-      y: this.world.centerY + (this.world.centerY * 0.4),
-    });
+    this.cat = new Cat({ game: this.game });
 
     this.mouse = new Mouse({
       game: this.game,
@@ -53,8 +60,7 @@ export default class extends Phaser.State {
       config: this.time.config.mice,
     });
 
-    this.mouse.release(this.cat.sprite.centerX + 400);
-
+    this.releaseInitialMouse();
     this.weather.add();
 
     this.batteries = new Batteries(this.game);
@@ -62,14 +68,31 @@ export default class extends Phaser.State {
 
     const jumpKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     const loadKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-    const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
+    const travelKey = this.game.input.keyboard.addKey(Phaser.Keyboard.T);
+    const fullScreenKey = this.game.input.keyboard.addKey(Phaser.Keyboard.F);
 
     jumpKey.onDown.add(() => this.cat.jump());
-    loadKey.onUp.add(() => this.cat.chargeBatteries(this.batteries));
+    loadKey.onUp.add(() => this.chargeBatteries());
     travelKey.onUp.add(() => this.travelToFuture());
+
+    this.batteries.onCharge.add(() => this.chargeBatteries());
+    this.batteries.onPackDropped.add((x, y) => this.handleBatteryPackDropped(x, y));
 
     const music = this.game.add.audio('furry-cat');
     music.loopFull();
+    this.resize();
+  }
+
+  chargeBatteries() {
+    this.cat.chargeBatteries(this.batteries);
+  }
+
+  handleBatteryPackDropped(x, y) {
+    const isOverCat = this.cat.sprite.getBounds().contains(x, y);
+
+    if (isOverCat) {
+      this.travelToFuture();
+    }
   }
 
   travelToFuture() {
@@ -81,36 +104,47 @@ export default class extends Phaser.State {
     }
   }
 
-  addTime() {
-    const x = this.game.world.width - 200;
-    const y = 20;
+  addTime(scale = 1) {
+    const x = Math.floor(this.game.world.width - (200 * scale));
+    const y = Math.floor(20 * scale);
     const text = this.timeMachine.currentYear;
+    const fontSize = Math.floor(config.reference.fontSize.large * scale);
+
+    destroy(this.timeLabel);
 
     this.timeLabel = this.add.text(x, y, text, {
-      font: `75px ${config.fonts.secondary}`,
+      font: `${fontSize}px ${config.fonts.secondary}`,
       fill: config.fontColor,
       align: 'right',
     });
+  }
+
+  releaseInitialMouse() {
+    const { centerX, width } = this.cat.sprite;
+    return this.mouse.release(Math.floor(centerX + (width * 0.8)));
   }
 
   update() {
     this.cat.update();
 
     const { speed, totalEnergy } = this.cat;
-    this.mouse.update(speed);
     this.ground.update(speed);
     this.background.update(speed);
+    this.mouse.update(speed);
     this.obstacle.update(speed);
     this.weather.update(speed);
     this.batteries.update(totalEnergy);
 
     this.timeLabel.text = this.time.year;
 
-    this.game.physics.arcade.collide(this.ground.sprite, this.cat.sprite);
     this.cat.collideWithAll(this.obstacle.sprites);
 
     if (!this.moved && this.cat.hasEnergy()) {
       this.moved = true;
+    }
+
+    if (!this.moved && !this.mouse.anyReleased) {
+      this.releaseInitialMouse();
     }
 
     if (this.moved && !this.cat.hasEnergy()) {
@@ -122,6 +156,20 @@ export default class extends Phaser.State {
   }
 
   resize() {
-    this.restart();
+    const width = Math.floor(window.innerWidth * window.devicePixelRatio);
+    const height = Math.floor(window.innerHeight * window.devicePixelRatio);
+
+    this.scale.updateDimensions(width, height, true);
+    const scale = scaleFactor(this.game);
+
+    this.background.resize(scale);
+    this.ground.resize(scale);
+    this.cat.resize(scale);
+    this.mouse.resize(scale);
+    this.obstacle.resize(scale);
+    this.weather.resize(scale);
+    this.batteries.resize(scale);
+
+    this.addTime(scale);
   }
 }

@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
+import gameConfig from '../config';
 import CatWalking from '../sprites/cat-walking';
 
 class Cat {
-  constructor({ game, x, y }) {
+  constructor({ game }) {
     this.game = game;
     this.energy = 0;
     this.speedUpUnit = 10;
@@ -10,30 +11,48 @@ class Cat {
     this.chargeUnit = 75;
     this.maxAutoSlowDownUnit = 5;
     this.maxEnergy = 100;
-    this.jumpVelocity = 2500;
-    this.maxFrameRate = 25;
+    this.maxFrameRate = 50;
+
+    this.referenceJumpVelocity = 2500;
+    this.jumpVelocity = this.referenceJumpVelocity;
+    this.referenceGravity = 8000;
 
     // every 5 second the cat slows down by 1 unit (because it burns energy ;))
     this.slowDownPeriod = 5000;
 
     this.setNextSlowDownTime(this.slowDownPeriod);
 
+    const asset = 'cat-walking';
+    const { centerX, width, height } = game.world;
+
+    this.offset = gameConfig.reference.groundHeight - 40;
+
     this.sprite = new CatWalking({
       game,
-      x,
-      y,
-      asset: 'cat-walking',
+      x: Math.floor(centerX - (width * 0.15)),
+      y: height,
+      asset,
     });
 
-    game.add.existing(this.sprite);
     game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
 
-    this.sprite.body.offset.y = -50;
+    this.sprite.body.offset.y = this.offset;
+    this.sprite.checkWorldBounds = true;
     this.sprite.body.collideWorldBounds = true;
-    this.sprite.body.gravity.y = 8000;
+    this.sprite.body.immovable = true;
+    this.sprite.body.gravity.y = this.referenceGravity;
     this.sprite.body.gravity.x = 0;
     this.sprite.body.velocity.x = 0;
+    this.sprite.inputEnabled = true;
     this.meow = this.game.add.audio('meow');
+
+    this.swipeStartX = 0;
+    this.swipeStartY = 0;
+    this.swipeEndX = 0;
+    this.swipeEndY = 0;
+    this.sprite.events.onInputDown.add(this.beginSwipe, this);
+
+    game.add.existing(this.sprite);
   }
 
   get totalEnergy() {
@@ -42,6 +61,32 @@ class Cat {
 
   get speed() {
     return Math.floor((this.maxFrameRate * this.energy) / 100);
+  }
+
+  beginSwipe() {
+    this.swipeStartX = this.game.input.worldX;
+    this.swipeStartY = this.game.input.worldY;
+
+    this.sprite.events.onInputDown.remove(this.beginSwipe);
+    this.sprite.events.onInputUp.add(this.endSwipe, this);
+  }
+
+  endSwipe() {
+    this.swipeEndX = this.game.input.worldX;
+    this.swipeEndY = this.game.input.worldY;
+
+    const distanceX = this.swipeStartX - this.swipeEndX;
+    const distanceY = this.swipeStartY - this.swipeEndY;
+    const verticalSwipe = Math.abs(distanceY) > Math.abs(distanceX) * 2;
+    const minDistanceCovered = Math.abs(distanceY) > 10;
+    const swipedUp = distanceY > 0;
+
+    if (verticalSwipe && minDistanceCovered && swipedUp) {
+      this.jump();
+    }
+
+    this.sprite.events.onInputUp.remove(this.endSwipe);
+    this.sprite.events.onInputDown.add(this.beginSwipe);
   }
 
   setNextSlowDownTime(period) {
@@ -74,8 +119,11 @@ class Cat {
   }
 
   jump() {
-    if (this.sprite.body.touching.down) {
+    if (this.sprite.body.blocked.down) {
+      this.jumping = true;
       this.sprite.body.velocity.y = -this.jumpVelocity;
+    } else {
+      this.jumping = false;
     }
   }
 
@@ -87,7 +135,11 @@ class Cat {
       this.sprite.halt();
     }
 
-    this.updateAngle();
+    if (this.jumping) {
+      this.updateAngle();
+    } else {
+      this.resetAngle();
+    }
   }
 
   updateAngle() {
@@ -96,7 +148,25 @@ class Cat {
     const maxAngleUp = 45;
     const maxAngleDown = 20;
     const angle = velocity < 0 ? maxAngleUp : maxAngleDown;
-    this.sprite.rotation = (velocity * (angle / this.jumpVelocity)) / 60;
+    const fps = 60;
+
+    this.sprite.rotation = (velocity * (angle / this.jumpVelocity)) / fps;
+  }
+
+  resetAngle() {
+    this.sprite.rotation = 0;
+  }
+
+  resize(scale) {
+    const { centerX, width, height } = this.game.world;
+
+    this.sprite.x = Math.floor(centerX - (width * 0.15));
+    this.sprite.y = height;
+
+    this.jumpVelocity = Math.floor(this.referenceJumpVelocity * scale);
+    this.sprite.body.gravity.y = Math.floor(this.referenceGravity * scale);
+
+    this.sprite.scale.set(scale);
   }
 
   chargeBatteries(batteries) {

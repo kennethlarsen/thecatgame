@@ -1,9 +1,12 @@
 import Phaser from 'phaser';
+import scaleFactor from '../utils/scale-factor';
+import gameConfig from '../config';
 
 class Ground {
   constructor({ game, config }) {
     this.game = game;
-    this.height = 150;
+    this.config = config;
+    this.height = gameConfig.reference.groundHeight;
 
     this.use(config);
   }
@@ -13,17 +16,17 @@ class Ground {
       this.sprite.destroy();
     }
 
+    const { width, height } = this.game.world;
+
     this.sprite = this.game.add.tileSprite(
-      this.game.world.centerX,
-      this.game.world.height - this.height,
-      this.game.world.width,
+      0,
+      height,
+      width,
       this.height,
       config.asset,
     );
 
-    this.game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
-    this.sprite.body.collideWorldBounds = true;
-    this.sprite.body.immovable = true;
+    this.sprite.anchor.set(0, 1);
   }
 
   update(speed) {
@@ -31,15 +34,24 @@ class Ground {
       return;
     }
 
-    // Cat walks ca. (dist * speed/10 fps) per 1000 ms (full walking cycle).
+    // Cat walks ca. (dist * speed/20 fps) per 1000 ms (full walking cycle).
     // With an update rate of 60 fps, this is an update each 1000/60 ms.
     // So, the ground movement is:
-    // (dist * speed/10) / game-fps per update call.
-    const walkCycleDistance = 180;
+    // (dist * speed/20) / game-fps per update call.
+    const scale = scaleFactor(this.game);
+    const walkCycleDistance = 180 * scale;
     const { fps } = this.game.time;
-    const fullDistance = (walkCycleDistance * (speed / 10)) / fps;
+    const fullDistance = (walkCycleDistance * (speed / 20)) / fps;
 
     this.sprite.tilePosition.x -= fullDistance;
+  }
+
+  resize(scale) {
+    const { width, height } = this.game.world;
+
+    this.sprite.tileScale.set(scale);
+    this.sprite.width = width;
+    this.sprite.y = height;
   }
 }
 
